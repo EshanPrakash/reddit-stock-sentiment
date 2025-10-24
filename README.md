@@ -28,7 +28,7 @@ pip install praw python-dotenv
 1. Go to https://www.reddit.com/prefs/apps
 2. Scroll down and click **"create another app..."**
 3. Fill out the form:
-   - **name**: reddit-stock-sentiment (or whatever you want)
+   - **name**: wsb-stock-sentiment (or whatever you want)
    - **type**: Select **"script"**
    - **description**: (leave blank)
    - **about url**: (leave blank)
