@@ -48,7 +48,7 @@ Edit `.env` and fill in your credentials:
 ```
 REDDIT_CLIENT_ID=your_client_id_here
 REDDIT_CLIENT_SECRET=your_client_secret_here
-REDDIT_USER_AGENT=python:reddit-stock-sentiment:v1.0 (by u/your_reddit_username)
+REDDIT_USER_AGENT=python:wsb-stock-sentiment:v1.0 (by u/your_reddit_username)
 ```
 
 Replace `your_reddit_username` with your actual Reddit username.
