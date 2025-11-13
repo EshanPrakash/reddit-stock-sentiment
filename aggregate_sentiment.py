@@ -1,15 +1,23 @@
+# aggregate_sentiment.py
+# run this script last to aggregate sentiment scores by stock ticker for Q2 2023
+
 import json
 import statistics
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
+
+# Create output directories if they don't exist
+os.makedirs('data', exist_ok=True)
+os.makedirs('images', exist_ok=True)
 
 # Set style for better-looking plots
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (12, 8)
 
-# Load sentiment data
-input_file = "reddit_posts_q2_2023_with_sentiment.json"
+# Load sentiment data from data directory
+input_file = "data/reddit_posts_q2_2023_with_sentiment.json"
 print(f"Loading sentiment data from {input_file}...")
 
 try:
@@ -75,13 +83,13 @@ print("\nQ2 2023 SENTIMENT AGGREGATION BY TICKER")
 print("=" * 60)
 print(df.to_string(index=False))
 
-# Save as CSV for easy use
-csv_file = "q2_2023_sentiment_by_ticker.csv"
+# Save as CSV for easy use in data directory
+csv_file = "data/q2_2023_sentiment_by_ticker.csv"
 df.to_csv(csv_file, index=False)
 print(f"\n✓ Saved aggregated sentiment to {csv_file}")
 
-# Save as JSON too
-json_file = "q2_2023_sentiment_by_ticker.json"
+# Save as JSON too in data directory
+json_file = "data/q2_2023_sentiment_by_ticker.json"
 with open(json_file, 'w', encoding='utf-8') as f:
     json.dump(aggregated_results, f, indent=2)
 print(f"✓ Saved aggregated sentiment to {json_file}")
@@ -100,7 +108,7 @@ print(f"\nMost discussed: {df.nlargest(1, 'q2_2023_post_count').iloc[0]['ticker'
 print("\n" + "=" * 60)
 print("Next step: Get Q3 2023 stock returns and correlate with Q2 sentiment!")
 
-# Create visualizations
+# Create visualizations in images directory
 print("\n" + "=" * 60)
 print("CREATING VISUALIZATIONS")
 print("=" * 60)
@@ -114,8 +122,8 @@ plt.ylabel('Stock Ticker', fontsize=12)
 plt.title('Q2 2023 Reddit Sentiment by Stock Ticker', fontsize=14, fontweight='bold')
 plt.axvline(x=0, color='black', linestyle='--', linewidth=1)
 plt.tight_layout()
-plt.savefig('sentiment_by_ticker.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: sentiment_by_ticker.png")
+plt.savefig('images/sentiment_by_ticker.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/sentiment_by_ticker.png")
 plt.close()
 
 # 2. Scatter plot: Post count vs Sentiment
@@ -131,8 +139,8 @@ plt.ylabel('Average Sentiment Score', fontsize=12)
 plt.title('Q2 2023 Sentiment vs Post Volume', fontsize=14, fontweight='bold')
 plt.colorbar(label='Sentiment Score')
 plt.tight_layout()
-plt.savefig('sentiment_vs_volume.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: sentiment_vs_volume.png")
+plt.savefig('images/sentiment_vs_volume.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/sentiment_vs_volume.png")
 plt.close()
 
 # 3. Stacked bar chart of sentiment distribution
@@ -146,8 +154,8 @@ plt.ylabel('Stock Ticker', fontsize=12)
 plt.title('Q2 2023 Sentiment Distribution by Ticker', fontsize=14, fontweight='bold')
 plt.legend(title='Sentiment', labels=['Positive', 'Neutral', 'Negative'])
 plt.tight_layout()
-plt.savefig('sentiment_distribution.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: sentiment_distribution.png")
+plt.savefig('images/sentiment_distribution.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/sentiment_distribution.png")
 plt.close()
 
 # 4. Top 5 most discussed stocks
@@ -162,8 +170,8 @@ for i, row in enumerate(top_5.itertuples()):
     plt.text(i, row.q2_2023_post_count + 2, str(row.q2_2023_post_count), 
             ha='center', fontweight='bold')
 plt.tight_layout()
-plt.savefig('top_5_discussed.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: top_5_discussed.png")
+plt.savefig('images/top_5_discussed.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/top_5_discussed.png")
 plt.close()
 
 # 5. Heatmap-style visualization showing sentiment and volume
@@ -173,16 +181,16 @@ sns.heatmap(heatmap_data, annot=True, fmt='.3f', cmap='RdYlGn',
             center=0.5, cbar_kws={'label': 'Score'})
 plt.title('Q2 2023 Sentiment Metrics Heatmap', fontsize=14, fontweight='bold')
 plt.tight_layout()
-plt.savefig('sentiment_heatmap.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: sentiment_heatmap.png")
+plt.savefig('images/sentiment_heatmap.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/sentiment_heatmap.png")
 plt.close()
 
 print("\n" + "=" * 60)
 print("✓ All visualizations created!")
 print("\nGenerated files:")
-print("  • sentiment_by_ticker.png - Bar chart of sentiment scores")
-print("  • sentiment_vs_volume.png - Scatter plot of sentiment vs discussion volume")
-print("  • sentiment_distribution.png - Stacked bar of positive/neutral/negative")
-print("  • top_5_discussed.png - Most discussed stocks")
-print("  • sentiment_heatmap.png - Heatmap of sentiment metrics")
+print("  • images/sentiment_by_ticker.png - Bar chart of sentiment scores")
+print("  • images/sentiment_vs_volume.png - Scatter plot of sentiment vs discussion volume")
+print("  • images/sentiment_distribution.png - Stacked bar of positive/neutral/negative")
+print("  • images/top_5_discussed.png - Most discussed stocks")
+print("  • images/sentiment_heatmap.png - Heatmap of sentiment metrics")
 print("\nThese are ready to show your groupmates!")

@@ -1,8 +1,11 @@
+# analyze_engagement.py
+# run this script to analyze engagement statistics of collected Reddit posts
+
 import json
 import statistics
 
-# Load the collected data
-input_file = "reddit_posts_q2_2023_full.json"
+# Load the collected data from data directory
+input_file = "data/reddit_posts_q2_2023_full.json"
 print(f"Loading data from {input_file}...")
 
 try:

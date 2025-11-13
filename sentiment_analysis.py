@@ -1,12 +1,19 @@
+# sentiment_analysis.py
+# run this script third to perform sentiment analysis on filtered Reddit posts
+
 import json
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import statistics
+import os
+
+# Create data directory if it doesn't exist
+os.makedirs('data', exist_ok=True)
 
 # Initialize VADER
 analyzer = SentimentIntensityAnalyzer()
 
-# Load filtered data
-input_file = "reddit_posts_q2_2023_filtered.json"
+# Load filtered data from data directory
+input_file = "data/reddit_posts_q2_2023_filtered.json"
 print(f"Loading filtered posts from {input_file}...")
 
 try:
@@ -51,8 +58,8 @@ for i, post in enumerate(posts, 1):
 
 print(f"  Processed {len(posts)}/{len(posts)} posts... Done!")
 
-# Save posts with sentiment scores
-output_file = "reddit_posts_q2_2023_with_sentiment.json"
+# Save posts with sentiment scores to data directory
+output_file = "data/reddit_posts_q2_2023_with_sentiment.json"
 with open(output_file, 'w', encoding='utf-8') as f:
     json.dump(posts, f, indent=2, ensure_ascii=False)
 

@@ -1,7 +1,14 @@
+# collect_pullpush.py
+# run this script first to collect Reddit posts from Q2 2023 using Pullpush.io API
+
 import requests
 from datetime import datetime
 import time
 import json
+import os
+
+# Create data directory if it doesn't exist
+os.makedirs('data', exist_ok=True)
 
 # Q2 2023 timeframe
 start_timestamp = int(datetime(2023, 4, 1).timestamp())
@@ -126,8 +133,8 @@ for subreddit in subreddits:
 print(f"\n" + "=" * 60)
 print(f"✓ Total posts collected: {len(all_posts)}")
 
-# Save all posts to JSON
-output_file = "reddit_posts_q2_2023_full.json"
+# Save all posts to JSON in data directory
+output_file = "data/reddit_posts_q2_2023_full.json"
 with open(output_file, 'w', encoding='utf-8') as f:
     json.dump(all_posts, f, indent=2, ensure_ascii=False)
 

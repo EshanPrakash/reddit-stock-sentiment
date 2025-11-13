@@ -1,5 +1,12 @@
+# filter_posts.py
+# run this script second to filter collected Reddit posts for mentions of target stocks
+
 import json
 import re
+import os
+
+# Create data directory if it doesn't exist
+os.makedirs('data', exist_ok=True)
 
 # Stock tickers and their company names
 STOCK_INFO = {
@@ -38,8 +45,8 @@ def find_mentioned_tickers(text):
     
     return list(set(mentioned))  # Return unique tickers
 
-# Load the collected data
-input_file = "reddit_posts_q2_2023_full.json"
+# Load the collected data from data directory
+input_file = "data/reddit_posts_q2_2023_full.json"
 print(f"Loading data from {input_file}...")
 
 try:
@@ -77,8 +84,8 @@ for post in all_posts:
 print(f"✓ Found {len(filtered_posts):,} posts mentioning our target stocks")
 print(f"  ({len(filtered_posts)/len(all_posts)*100:.1f}% of total posts)")
 
-# Save filtered data
-output_file = "reddit_posts_q2_2023_filtered.json"
+# Save filtered data to data directory
+output_file = "data/reddit_posts_q2_2023_filtered.json"
 with open(output_file, 'w', encoding='utf-8') as f:
     json.dump(filtered_posts, f, indent=2, ensure_ascii=False)
 
