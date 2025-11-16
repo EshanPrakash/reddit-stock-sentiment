@@ -1,5 +1,4 @@
 # sentiment_analysis.py
-# run this script third to perform sentiment analysis on filtered Reddit posts
 
 import json
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer

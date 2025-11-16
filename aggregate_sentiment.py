@@ -1,5 +1,4 @@
 # aggregate_sentiment.py
-# run this script last to aggregate sentiment scores by stock ticker for Q2 2023
 
 import json
 import statistics
@@ -145,8 +144,8 @@ plt.close()
 
 # 3. Stacked bar chart of sentiment distribution
 plt.figure(figsize=(12, 6))
-sentiment_data = df[['ticker', 'positive_posts', 'neutral_posts', 'negative_posts']].set_index('ticker')
-sentiment_data.plot(kind='barh', stacked=True, 
+sentiment_data = df.sort_values('q2_2023_post_count', ascending=False)[['ticker', 'positive_posts', 'neutral_posts', 'negative_posts']].set_index('ticker')
+sentiment_data.plot(kind='barh', stacked=True,
                    color=['#2ecc71', '#95a5a6', '#e74c3c'],
                    figsize=(12, 6))
 plt.xlabel('Number of Posts', fontsize=12)

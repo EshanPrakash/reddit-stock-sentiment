@@ -3,3 +3,5 @@ vaderSentiment>=3.3.2
 pandas>=2.1.4
 matplotlib>=3.8.2
 seaborn>=0.13.0
+yfinance>=0.2.40
+scipy>=1.11.0

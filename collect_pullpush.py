@@ -1,5 +1,4 @@
 # collect_pullpush.py
-# run this script first to collect Reddit posts from Q2 2023 using Pullpush.io API
 
 import requests
 from datetime import datetime
@@ -26,9 +25,6 @@ MEDIAN_FILTERS = {
     'stocks': {'score': 11, 'comments': 25},
     'StockMarket': {'score': 20, 'comments': 15}
 }
-
-# Tickers we're interested in (for filtering later)
-tickers = ["AAPL", "TSLA", "NVDA", "MSFT", "AMZN", "GOOGL", "META", "AMD", "NFLX", "SPY"]
 
 print("Collecting Reddit posts from Q2 2023 using Pullpush.io")
 print("=" * 60)
