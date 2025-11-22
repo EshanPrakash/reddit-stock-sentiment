@@ -217,6 +217,20 @@ The low R² values (~0.10) indicate that even if a relationship exists, Reddit s
 - Institutional investor activity
 - Geopolitical events
 
+### Correlation between Sectors
+
+Although the overall analysis showed no statistically significant relationship between Q2 Reddit sentiment and Q3 returns, we further examined whether the relationship differed by sector. Each stock was assigned to one of three categories—Tech, Finance, or Other—and plotted using a sector-colored scatterplot of Q2 average sentiment vs. Q3 returns.
+
+Findings:
+
+Tech stocks displayed a slightly stronger positive trend, though still weak and not statistically significant.
+
+Finance stocks showed almost no discernible pattern, with returns clustered near zero.
+
+Other sectors exhibited highly dispersed behavior with no visible structure.
+
+These results reinforce our main conclusion: sector grouping does not reveal any hidden predictive relationship between Reddit sentiment and future quarterly stock performance. Sector-specific regression lines (visualized in sector_trendlines.png) confirm that no industry group shows a significant slope.
+
 ### Correlation vs. Causation
 
 Even if our results had shown statistical significance, establishing causation would require additional evidence. Several plausible explanations could account for a correlation between Reddit sentiment and stock returns:
@@ -227,6 +241,20 @@ Even if our results had shown statistical significance, establishing causation w
 4. **Selection bias:** Stocks already trending attract more discussion
 
 Our study design cannot definitively distinguish between these mechanisms, highlighting an important limitation in observational social media research.
+
+### Time Series Charts
+
+To contextualize the sentiment–return relationship, we also generated time series charts for the five most-mentioned stocks on Reddit in Q2 2023: NVDA, TSLA, AAPL, GOOGL, and MSFT. Using Yahoo Finance daily price data, we constructed a five-panel figure (top5_time_series_multipanel.png) illustrating each stock’s price trajectory across Q2 and Q3 2023.
+
+This visualization highlights:
+
+ - Strong upward momentum for most top-mentioned stocks during Q2 (the sentiment window).
+
+ - Increased volatility and mixed performance in Q3 (the returns window).
+
+ - No obvious visual linkage between Q2 sentiment levels and subsequent Q3 price movement.
+
+These time series plots supplement our statistical findings by showing that Reddit discussion volume tends to coincide with periods of elevated price movement, but does not reliably precede or predict quarterly returns.
 
 ### Comparison to Prior Research
 
@@ -363,30 +391,39 @@ reddit-stock-sentiment/
 │   ├── reddit_posts_q2_2023_filtered.json       # Filtered posts
 │   ├── reddit_posts_q2_2023_with_sentiment.json # Posts with VADER scores
 │   ├── q2_2023_sentiment_by_ticker.json         # Aggregated Q2 sentiment
-│   ├── q2_2023_sentiment_by_ticker.csv
+│   ├── q2_2023_sentiment_by_ticker.csv          #
+│   ├── top5_price_history_q2_q3_2023.csv        #
 │   ├── q3_2023_with_benchmarks.json             # Q3 stock returns
-│   ├── q3_2023_with_benchmarks.csv
+│   ├── q3_2023_with_benchmarks.csv              #
 │   ├── merged_sentiment_returns.csv             # Final merged dataset
 │   └── regression_summary.csv                   # Statistical results
 │
 ├── images/
+│   ├── correlation_comparison.png               #
+│   ├── r_squared_comparison.png                 #
+│   ├── residual_plots.png                       #
+│   ├── sector_trendlines.png                    # 
+│   ├── sector_highlight_scatter.png             # 
 │   ├── sentiment_by_ticker.png                  # Q2 sentiment visualization
-│   ├── sentiment_vs_volume.png
-│   ├── sentiment_distribution.png
-│   ├── top_5_discussed.png
-│   ├── sentiment_heatmap.png
+│   ├── sentiment_distribution.png               #
+│   ├── sentiment_heatmap.png                    #
+│   ├── sentiment_vs_excess_spy_labeled.png      #
+│   ├── sentiment_vs_volume.png                  #
 │   ├── three_models_comparison.png              # Main regression results
-│   ├── sentiment_vs_excess_spy_labeled.png
-│   ├── residual_plots.png
-│   ├── r_squared_comparison.png
-│   └── correlation_comparison.png
+│   ├── top_5_discussed.png                      #
+│   └── top_5_time_series.png                    #
 │
-├── collect_pullpush.py          # Step 1: Collect Reddit posts
-├── filter_posts.py              # Step 2: Filter for stock mentions
-├── sentiment_analysis.py        # Step 3: VADER sentiment analysis
-├── aggregate_sentiment.py       # Step 4: Aggregate by ticker
-├── yfinance_fetch_q3.py         # Step 5: Fetch Q3 stock returns
-├── correlate_sentiment_returns.py # Step 6: Statistical analysis
+├── collect_pullpush.py            # Step 1: Collect Reddit posts
+├── filter_posts.py                # Step 2: Filter for stock mentions
+├── sentiment_analysis.py          # Step 3: VADER sentiment analysis
+├── aggregate_sentiment.py         # Step 4: Aggregate by ticker
+├── top_5_time_series.py           # Step 5: Daily price time-series plots for Top 5 most-mentioned tickers
+├── yfinance_fetch_q3.py           # Step 6: Fetch Q3 stock returns
+├── statistical_analysis.py        # Step 7: Statistical analysis
+│
+├── requirements.txt             #
+│
+├── LICENSE                      # 
 │
 └── README.md                    # This file
 ```
@@ -404,8 +441,9 @@ reddit-stock-sentiment/
    python filter_posts.py              # Filter for stock mentions
    python sentiment_analysis.py        # Compute sentiment scores
    python aggregate_sentiment.py       # Aggregate by ticker
+   python top_5_time_series.py          # Daily price time-series plots for Top 5 most-mentioned tickers
    python yfinance_fetch_q3.py         # Fetch stock returns
-   python correlate_sentiment_returns.py # Run statistical analysis
+   python statistical_analysis.py      # Run statistical analysis
    ```
 
 3. **View results:**

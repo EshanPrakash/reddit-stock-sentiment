@@ -1,4 +1,7 @@
-# aggregate_sentiment.py
+# aggregate_sentiment.py: This file aggregates sentiment scores by stock ticker for Q2 2023 Reddit 
+#                         posts, computes statistics, and creates visualizations. It saves results 
+#                         to the data/ and images/ directories for further analysis.
+# Requires sentiment_analysis.py to be run first.
 
 import json
 import statistics
@@ -7,18 +10,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-# Create output directories if they don't exist
+# Creating a data and images directory if they don't exist for saving collected posts, keeping the output organized
 os.makedirs('data', exist_ok=True)
 os.makedirs('images', exist_ok=True)
 
-# Set style for better-looking plots
+# Set style for seaborn and matplotlib styles for better-looking plots
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (12, 8)
 
-# Load sentiment data from data directory
+# Load the Reddit posts with sentiment scores from a JSON file produced by sentiment_analysis.py
 input_file = "data/reddit_posts_q2_2023_with_sentiment.json"
 print(f"Loading sentiment data from {input_file}...")
-
 try:
     with open(input_file, 'r', encoding='utf-8') as f:
         posts = json.load(f)
@@ -31,11 +33,15 @@ except FileNotFoundError:
 print("Aggregating Q2 2023 sentiment by ticker...")
 print("=" * 60)
 
-# Aggregate sentiment by ticker
+# Dictionary to hold sentiment data by ticker
 ticker_data = {}
 
+# Aggregate sentiment scores and counts for each ticker
+# For each mentioned ticker, collect compound scores, total number of posts mentioning
+# the ticker, and sentiment labels counts.
 for post in posts:
     for ticker in post.get('mentioned_tickers', []):
+        # Initialize data structure for ticker if not already present
         if ticker not in ticker_data:
             ticker_data[ticker] = {
                 'compound_scores': [],
@@ -45,7 +51,7 @@ for post in posts:
                 'negative_count': 0
             }
         
-        # Collect compound scores
+        # Append the VADER compound sentiment scores
         ticker_data[ticker]['compound_scores'].append(post['sentiment']['compound'])
         ticker_data[ticker]['post_count'] += 1
         
@@ -57,6 +63,7 @@ for post in posts:
 aggregated_results = []
 
 for ticker in sorted(ticker_data.keys()):
+    # Pull data for easier access
     data = ticker_data[ticker]
     scores = data['compound_scores']
     
@@ -71,10 +78,11 @@ for ticker in sorted(ticker_data.keys()):
         'negative_posts': data['negative_count'],
         'positive_ratio': data['positive_count'] / data['post_count']
     }
-    
+    # Append to results list
     aggregated_results.append(result)
 
-# Convert to DataFrame for better display
+# Convert the aggregated results to a pandas DataFrame
+# Sort by average sentiment descending
 df = pd.DataFrame(aggregated_results)
 df = df.sort_values('q2_2023_avg_sentiment', ascending=False)
 
@@ -82,24 +90,25 @@ print("\nQ2 2023 SENTIMENT AGGREGATION BY TICKER")
 print("=" * 60)
 print(df.to_string(index=False))
 
-# Save as CSV for easy use in data directory
+# Save the aggregated results as a CSV and JSON file to the data directory for further analysis
 csv_file = "data/q2_2023_sentiment_by_ticker.csv"
 df.to_csv(csv_file, index=False)
 print(f"\n✓ Saved aggregated sentiment to {csv_file}")
 
-# Save as JSON too in data directory
 json_file = "data/q2_2023_sentiment_by_ticker.json"
 with open(json_file, 'w', encoding='utf-8') as f:
     json.dump(aggregated_results, f, indent=2)
 print(f"✓ Saved aggregated sentiment to {json_file}")
 
-# Summary stats
+# Print summary statistics
 print("\n" + "=" * 60)
 print("SUMMARY")
 print("=" * 60)
 
 print(f"\nTickers analyzed: {len(aggregated_results)}")
 print(f"Total posts: {sum(r['q2_2023_post_count'] for r in aggregated_results)}")
+
+# Highlight most positive, most negative, and most discussed tickers
 print(f"\nMost positive ticker: {df.iloc[0]['ticker']} (avg: {df.iloc[0]['q2_2023_avg_sentiment']:.3f})")
 print(f"Most negative ticker: {df.iloc[-1]['ticker']} (avg: {df.iloc[-1]['q2_2023_avg_sentiment']:.3f})")
 print(f"\nMost discussed: {df.nlargest(1, 'q2_2023_post_count').iloc[0]['ticker']} ({df.nlargest(1, 'q2_2023_post_count').iloc[0]['q2_2023_post_count']} posts)")
@@ -107,12 +116,14 @@ print(f"\nMost discussed: {df.nlargest(1, 'q2_2023_post_count').iloc[0]['ticker'
 print("\n" + "=" * 60)
 print("Next step: Get Q3 2023 stock returns and correlate with Q2 sentiment!")
 
-# Create visualizations in images directory
+# Create visualizations in the images directory
 print("\n" + "=" * 60)
 print("CREATING VISUALIZATIONS")
 print("=" * 60)
 
 # 1. Bar chart of average sentiment by ticker
+# Horizontal bar chart for better readability with color coding
+# Green for positive, red for negative sentiment
 plt.figure(figsize=(12, 6))
 colors = ['green' if x > 0 else 'red' for x in df['q2_2023_avg_sentiment']]
 plt.barh(df['ticker'], df['q2_2023_avg_sentiment'], color=colors, alpha=0.7)
@@ -125,7 +136,9 @@ plt.savefig('images/sentiment_by_ticker.png', dpi=300, bbox_inches='tight')
 print("✓ Saved: images/sentiment_by_ticker.png")
 plt.close()
 
-# 2. Scatter plot: Post count vs Sentiment
+# 2. Scatter plot: Post count vs Average Sentiment
+# Size of points represents number of posts, color represents sentiment
+# Positive sentiment in green, negative in red
 plt.figure(figsize=(10, 6))
 plt.scatter(df['q2_2023_post_count'], df['q2_2023_avg_sentiment'], 
             s=100, alpha=0.6, c=df['q2_2023_avg_sentiment'], cmap='RdYlGn')
@@ -143,6 +156,8 @@ print("✓ Saved: images/sentiment_vs_volume.png")
 plt.close()
 
 # 3. Stacked bar chart of sentiment distribution
+# Shows positive, neutral, negative post counts per ticker
+# Colors: Green (positive), Gray (neutral), Red (negative)
 plt.figure(figsize=(12, 6))
 sentiment_data = df.sort_values('q2_2023_post_count', ascending=False)[['ticker', 'positive_posts', 'neutral_posts', 'negative_posts']].set_index('ticker')
 sentiment_data.plot(kind='barh', stacked=True,
@@ -157,7 +172,9 @@ plt.savefig('images/sentiment_distribution.png', dpi=300, bbox_inches='tight')
 print("✓ Saved: images/sentiment_distribution.png")
 plt.close()
 
-# 4. Top 5 most discussed stocks
+# 4. Bar Chart with the Top 5 most discussed stocks
+# Highlighting the most mentioned stocks in Q2 2023
+# Distinct colors are used for the top 5 stocks
 plt.figure(figsize=(10, 6))
 top_5 = df.nlargest(5, 'q2_2023_post_count')
 colors_top5 = sns.color_palette("viridis", 5)
@@ -173,7 +190,8 @@ plt.savefig('images/top_5_discussed.png', dpi=300, bbox_inches='tight')
 print("✓ Saved: images/top_5_discussed.png")
 plt.close()
 
-# 5. Heatmap-style visualization showing sentiment and volume
+# 5. Color-Coded Heatmap-style visualization showing sentiment and volume
+# Combining average sentiment and positive ratio for each ticker
 plt.figure(figsize=(10, 8))
 heatmap_data = df[['ticker', 'q2_2023_avg_sentiment', 'positive_ratio']].set_index('ticker')
 sns.heatmap(heatmap_data, annot=True, fmt='.3f', cmap='RdYlGn', 

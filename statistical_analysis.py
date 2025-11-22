@@ -1,6 +1,8 @@
-# correlate_sentiment_returns.py
-# Statistical analysis: correlate Q2 2023 sentiment with Q3 2023 stock returns
-# Tests three models with increasing levels of control
+# statistical_analysis.py: This file performs statistical correlation and regression analysis
+#                          between Reddit sentiment scores from Q2 2023 and stock returns in 
+#                          Q3 2023. It generates visualizations and saves results to CSV and PNG files.
+# Requires yfinance_fetch_q3.py to be run first
+
 
 import json
 import pandas as pd
@@ -11,11 +13,11 @@ from scipy import stats
 from sklearn.linear_model import LinearRegression
 import os
 
-# Create output directories
+# Creating a data and images directory if they don't exist for saving collected posts, keeping the output organized
 os.makedirs('data', exist_ok=True)
 os.makedirs('images', exist_ok=True)
 
-# Set style
+# Set style for seaborn and matplotlib styles for better-looking plots
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (10, 6)
 
@@ -23,10 +25,9 @@ print("=" * 70)
 print("SENTIMENT-RETURN CORRELATION ANALYSIS")
 print("=" * 70)
 
-# Load Q2 sentiment data
+# Load the Q2 sentiment by ticker data from a JSON file produced by aggregate_sentiment.py
 sentiment_file = "data/q2_2023_sentiment_by_ticker.json"
 print(f"\nLoading Q2 sentiment data from {sentiment_file}...")
-
 try:
     with open(sentiment_file, 'r', encoding='utf-8') as f:
         sentiment_data = json.load(f)
@@ -36,10 +37,9 @@ except FileNotFoundError:
     print("Run aggregate_sentiment.py first.")
     exit(1)
 
-# Load Q3 returns data
+# Load the Q3 returns data from a JSON file produced by yfinance_fetch_q3.py
 returns_file = "data/q3_2023_with_benchmarks.json"
 print(f"Loading Q3 returns data from {returns_file}...")
-
 try:
     with open(returns_file, 'r', encoding='utf-8') as f:
         returns_data = json.load(f)
@@ -49,7 +49,7 @@ except FileNotFoundError:
     print("Run yfinance_fetch_q3.py first.")
     exit(1)
 
-# Merge datasets
+# Merge the two datasets loaded above into a single pandas DataFrame on the 'ticker' field
 sentiment_df = pd.DataFrame(sentiment_data)
 returns_df = pd.DataFrame(returns_data)
 
@@ -63,23 +63,25 @@ print("=" * 70)
 print(f"✓ Merged dataset: {len(merged_df)} tickers")
 print("=" * 70)
 
-# Save merged dataset
+# Save merged dataset to a CSV file for reference and further analysis in other scripts
 merged_file = "data/merged_sentiment_returns.csv"
 merged_df.to_csv(merged_file, index=False)
 print(f"\n✓ Saved merged data to {merged_file}\n")
 
-# Print dataset preview
+# Print the dataset preview
 print("Dataset preview:")
 print(merged_df.head(10).to_string(index=False))
 
-# =============================================================================
+# ========================================================================================#
 # MODEL 1: RAW RETURNS
-# =============================================================================
+# Correlation and regression analysis between Q2 sentiment and Q3 raw returns/performance
+# ========================================================================================#
 
 print("\n" + "=" * 70)
 print("MODEL 1: Q2 SENTIMENT vs Q3 RAW RETURNS")
 print("=" * 70)
 
+# Define X and y for Model 1
 X1 = merged_df['q2_2023_avg_sentiment'].values
 y1 = merged_df['q3_return_pct'].values
 
@@ -101,7 +103,7 @@ r_squared1 = model1.score(X1_reshaped, y1)
 coefficient1 = model1.coef_[0]
 intercept1 = model1.intercept_
 
-# Calculate standard error and confidence interval
+# Calculate standard error and confidence interval of regression residuals
 residuals1 = y1 - y1_pred
 mse1 = np.mean(residuals1**2)
 se1 = np.sqrt(mse1 / (len(y1) - 2))
@@ -113,14 +115,16 @@ print(f"  Intercept = {intercept1:.4f}")
 print(f"  Standard Error = {se1:.4f}")
 print(f"  Equation: Q3_Return = {intercept1:.2f} + {coefficient1:.2f} * Sentiment")
 
-# =============================================================================
+# ========================================================================================#
 # MODEL 2: MARKET-ADJUSTED RETURNS (vs SPY)
-# =============================================================================
+# Assessing sentiment vs returns adjusted for market performance
+# ========================================================================================#
 
 print("\n" + "=" * 70)
 print("MODEL 2: Q2 SENTIMENT vs Q3 EXCESS RETURNS (vs SPY)")
 print("=" * 70)
 
+# Define X and y for Model 2
 X2 = merged_df['q2_2023_avg_sentiment'].values
 y2 = merged_df['excess_vs_spy'].values
 
@@ -142,6 +146,7 @@ r_squared2 = model2.score(X2_reshaped, y2)
 coefficient2 = model2.coef_[0]
 intercept2 = model2.intercept_
 
+# Calculate standard error and confidence interval of regression residuals
 residuals2 = y2 - y2_pred
 mse2 = np.mean(residuals2**2)
 se2 = np.sqrt(mse2 / (len(y2) - 2))
@@ -153,14 +158,16 @@ print(f"  Intercept = {intercept2:.4f}")
 print(f"  Standard Error = {se2:.4f}")
 print(f"  Equation: Excess_vs_SPY = {intercept2:.2f} + {coefficient2:.2f} * Sentiment")
 
-# =============================================================================
+# ========================================================================================#
 # MODEL 3: SECTOR-ADJUSTED RETURNS
-# =============================================================================
+# Assessing sentiment vs returns adjusted for sector performance
+# ========================================================================================#
 
 print("\n" + "=" * 70)
 print("MODEL 3: Q2 SENTIMENT vs Q3 EXCESS RETURNS (vs SECTOR)")
 print("=" * 70)
 
+# Define X and y for Model 3
 X3 = merged_df['q2_2023_avg_sentiment'].values
 y3 = merged_df['excess_vs_sector'].values
 
@@ -182,6 +189,7 @@ r_squared3 = model3.score(X3_reshaped, y3)
 coefficient3 = model3.coef_[0]
 intercept3 = model3.intercept_
 
+# Calculate standard error and confidence interval of regression residuals
 residuals3 = y3 - y3_pred
 mse3 = np.mean(residuals3**2)
 se3 = np.sqrt(mse3 / (len(y3) - 2))
@@ -193,14 +201,15 @@ print(f"  Intercept = {intercept3:.4f}")
 print(f"  Standard Error = {se3:.4f}")
 print(f"  Equation: Excess_vs_Sector = {intercept3:.2f} + {coefficient3:.2f} * Sentiment")
 
-# =============================================================================
-# SUMMARY TABLE
-# =============================================================================
+# ========================================================================================#
+# SUMMARY TABLE of ALL MODELS
+# ========================================================================================#
 
 print("\n" + "=" * 70)
 print("SUMMARY: ALL THREE MODELS")
 print("=" * 70)
 
+# Create a summary DataFrame
 summary_data = {
     'Model': ['Model 1: Raw Returns', 'Model 2: vs SPY', 'Model 3: vs Sector'],
     'Pearson r': [pearson_r1, pearson_r2, pearson_r3],
@@ -212,17 +221,19 @@ summary_data = {
     'Std Error': [se1, se2, se3]
 }
 
+# Display summary table
 summary_df = pd.DataFrame(summary_data)
 print("\n" + summary_df.to_string(index=False))
 
-# Save summary
+# Save summary table to a CSV file
 summary_file = "data/regression_summary.csv"
 summary_df.to_csv(summary_file, index=False)
 print(f"\n✓ Saved summary to {summary_file}")
 
-# =============================================================================
+# ========================================================================================#
 # VISUALIZATIONS
-# =============================================================================
+# Consisting of scatter plots, regression lines, residual plots, and comparison charts
+# ========================================================================================#
 
 print("\n" + "=" * 70)
 print("CREATING VISUALIZATIONS")
@@ -258,6 +269,7 @@ axes[2].set_title(f'Model 3: Sector-Adjusted\nR² = {r_squared3:.4f}, p = {pears
 axes[2].legend()
 axes[2].grid(True, alpha=0.3)
 
+# Adjust layout and save figures as a PNG file
 plt.tight_layout()
 plt.savefig('images/three_models_comparison.png', dpi=300, bbox_inches='tight')
 print("✓ Saved: images/three_models_comparison.png")
@@ -267,13 +279,13 @@ plt.close()
 plt.figure(figsize=(12, 8))
 plt.scatter(X2, y2, s=100, alpha=0.6, color='steelblue')
 
-# Add ticker labels
+# Add ticker labels to each point
 for i, row in merged_df.iterrows():
     plt.annotate(row['ticker'], 
                 (row['q2_2023_avg_sentiment'], row['excess_vs_spy']),
                 fontsize=9, alpha=0.7, ha='center')
 
-# Regression line
+# Regression line for Model 2
 plt.plot(X2, y2_pred, color='red', linewidth=2, linestyle='--', 
          label=f'Regression Line: y = {intercept2:.2f} + {coefficient2:.2f}x')
 
@@ -285,6 +297,8 @@ plt.legend(fontsize=11)
 plt.grid(True, alpha=0.3)
 plt.axhline(y=0, color='black', linestyle='-', linewidth=0.8, alpha=0.3)
 plt.axvline(x=0, color='black', linestyle='-', linewidth=0.8, alpha=0.3)
+
+# Adjust layout and save figure as a PNG file
 plt.tight_layout()
 plt.savefig('images/sentiment_vs_excess_spy_labeled.png', dpi=300, bbox_inches='tight')
 print("✓ Saved: images/sentiment_vs_excess_spy_labeled.png")
@@ -314,6 +328,7 @@ axes[2].set_ylabel('Residuals', fontsize=11)
 axes[2].set_title('Model 3: Residual Plot', fontsize=12, fontweight='bold')
 axes[2].grid(True, alpha=0.3)
 
+# Adjust layout and save figures as a PNG file
 plt.tight_layout()
 plt.savefig('images/residual_plots.png', dpi=300, bbox_inches='tight')
 print("✓ Saved: images/residual_plots.png")
@@ -337,6 +352,8 @@ for bar, val in zip(bars, r_squared_values):
             f'{val:.4f}', ha='center', va='bottom', fontsize=12, fontweight='bold')
 
 plt.grid(True, alpha=0.3, axis='y')
+
+# Adjust layout and save figure as a PNG file
 plt.tight_layout()
 plt.savefig('images/r_squared_comparison.png', dpi=300, bbox_inches='tight')
 print("✓ Saved: images/r_squared_comparison.png")
@@ -363,10 +380,104 @@ ax.legend()
 ax.grid(True, alpha=0.3, axis='y')
 ax.axhline(y=0, color='black', linestyle='-', linewidth=0.8)
 
+# Adjust layout and save figures as a PNG file
 plt.tight_layout()
 plt.savefig('images/correlation_comparison.png', dpi=300, bbox_inches='tight')
 print("✓ Saved: images/correlation_comparison.png")
 plt.close()
+
+# Visualization #6: SECTOR-HIGHLIGHTED CORRELATION PLOT
+# Load merged dataset (same file used earlier in this script)
+merged_path = "./data/merged_sentiment_returns.csv"
+df = pd.read_csv(merged_path)
+
+# Define sectors for highlighting
+tech = ["AAPL", "MSFT", "GOOGL", "AMZN", "META", "NVDA", "TSLA", "AMD", "NFLX", "INTC", "CRM", "ORCL", "ADBE", "CSCO", "UBER"]
+finance = ["JPM", "BAC", "WFC", "GS", "MS", "C", "V", "MA", "AXP", "SCHW"]
+
+# Map tickers to sectors
+def map_sector(ticker):
+    if ticker in tech:
+        return "Tech"
+    elif ticker in finance:
+        return "Finance"
+    else:
+        return "Other"
+
+# Add sector column to DataFrame
+df["Sector"] = df["ticker"].apply(map_sector)
+
+# Scatter plot with sector highlights
+plt.figure(figsize=(10, 7))
+
+sector_colors = {
+    "Tech": "tab:blue",
+    "Finance": "tab:red",
+    "Other": "tab:green"
+}
+
+# Plot each sector with different colors
+for sector, color in sector_colors.items():
+    subset = df[df["Sector"] == sector]
+    plt.scatter(
+        subset["q2_2023_avg_sentiment"], 
+        subset["q3_return_pct"],
+        color=color,
+        s=120,
+        alpha=0.75,
+        label=sector
+    )
+
+# Axes & labels
+plt.axhline(0, color="black", linewidth=1)
+plt.axvline(0, color="black", linewidth=1)
+
+plt.xlabel("Average Sentiment (Q2 2023)")
+plt.ylabel("Q3 Return (%)")
+plt.title("Q2 Sentiment vs Q3 Returns Highlighted by Sector")
+
+plt.legend()
+plt.tight_layout()
+
+# Save figure as PNG file
+plt.savefig("./images/sector_highlight_scatter.png", dpi=300, bbox_inches='tight')
+print("✓ Saved: images/sector_highlight_scatter.png")
+
+plt.show()
+
+# Visualization #7: Sector-specific regression lines
+
+plt.figure(figsize=(10, 7))
+
+for sector, color in sector_colors.items():
+    subset = df[df["Sector"] == sector]
+    x = subset["q2_2023_avg_sentiment"]   # FIXED
+    y = subset["q3_return_pct"]           # FIXED
+
+    plt.scatter(x, y, color=color, s=120, alpha=0.6, label=f"{sector} points")
+
+    # Regression line
+    if len(subset) >= 2:
+        m, b = np.polyfit(x, y, 1)
+        x_line = np.linspace(x.min(), x.max(), 100)
+        y_line = m * x_line + b
+        plt.plot(x_line, y_line, color=color, linewidth=2, label=f"{sector} trend")
+
+plt.axhline(0, color="black", linewidth=1)
+plt.axvline(0, color="black", linewidth=1)
+
+plt.xlabel("Average Sentiment (Q2 2023)")
+plt.ylabel("Q3 Return (%)")
+plt.title("Sector-Specific Regression Trends")
+
+plt.legend()
+
+# Adjust layout and save figure as PNG file
+plt.tight_layout()
+plt.savefig("./images/sector_trendlines.png", dpi=300, bbox_inches='tight')
+print("✓ Saved: images/sector_trendlines.png")
+
+plt.show()
 
 print("\n" + "=" * 70)
 print("✓ ANALYSIS COMPLETE!")
@@ -380,6 +491,8 @@ print("  • images/sentiment_vs_excess_spy_labeled.png - Detailed scatter with 
 print("  • images/residual_plots.png - Regression diagnostics")
 print("  • images/r_squared_comparison.png - Model explanatory power")
 print("  • images/correlation_comparison.png - Pearson vs Spearman")
+print("  • images/sector_highlight_scatter.png - Top 5 Sector-highlighted scatterplot")
+print("  • images/sector_trendlines.png - Top 5 Sector-specific regression lines")
 
 # Interpretation helper
 print("\n" + "=" * 70)
