@@ -12,7 +12,7 @@ import os
 
 # Creating a data and images directory if they don't exist for saving collected posts, keeping the output organized
 os.makedirs('data', exist_ok=True)
-os.makedirs('images/sentiment_analysis', exist_ok=True)
+os.makedirs('images/figures/sentiment', exist_ok=True)
 
 # Set style for seaborn and matplotlib styles for better-looking plots
 sns.set_style("whitegrid")
@@ -132,8 +132,8 @@ plt.ylabel('Stock Ticker', fontsize=12)
 plt.title('Q2 2023 Reddit Sentiment by Stock Ticker', fontsize=14, fontweight='bold')
 plt.axvline(x=0, color='black', linestyle='--', linewidth=1)
 plt.tight_layout()
-plt.savefig('images/sentiment_analysis/sentiment_by_ticker.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: images/sentiment_analysis/sentiment_by_ticker.png")
+plt.savefig('images/figures/sentiment/sentiment_by_ticker.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/figures/sentiment/sentiment_by_ticker.png")
 plt.close()
 
 # 2. Scatter plot: Post count vs Average Sentiment
@@ -151,8 +151,8 @@ plt.ylabel('Average Sentiment Score', fontsize=12)
 plt.title('Q2 2023 Sentiment vs Post Volume', fontsize=14, fontweight='bold')
 plt.colorbar(label='Sentiment Score')
 plt.tight_layout()
-plt.savefig('images/sentiment_analysis/sentiment_vs_volume.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: images/sentiment_analysis/sentiment_vs_volume.png")
+plt.savefig('images/figures/sentiment/sentiment_vs_volume.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/figures/sentiment/sentiment_vs_volume.png")
 plt.close()
 
 # 3. Stacked bar chart of sentiment distribution
@@ -168,8 +168,8 @@ plt.ylabel('Stock Ticker', fontsize=12)
 plt.title('Q2 2023 Sentiment Distribution by Ticker', fontsize=14, fontweight='bold')
 plt.legend(title='Sentiment', labels=['Positive', 'Neutral', 'Negative'])
 plt.tight_layout()
-plt.savefig('images/sentiment_analysis/sentiment_distribution.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: images/sentiment_analysis/sentiment_distribution.png")
+plt.savefig('images/figures/sentiment/sentiment_distribution.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/figures/sentiment/sentiment_distribution.png")
 plt.close()
 
 # 4. Bar Chart with the Top 5 most discussed stocks
@@ -186,8 +186,8 @@ for i, row in enumerate(top_5.itertuples()):
     plt.text(i, row.q2_2023_post_count + 2, str(row.q2_2023_post_count), 
             ha='center', fontweight='bold')
 plt.tight_layout()
-plt.savefig('images/sentiment_analysis/top_5_discussed.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: images/sentiment_analysis/top_5_discussed.png")
+plt.savefig('images/figures/sentiment/top_5_discussed.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/figures/sentiment/top_5_discussed.png")
 plt.close()
 
 # 5. Color-Coded Heatmap-style visualization showing sentiment and volume
@@ -198,16 +198,15 @@ sns.heatmap(heatmap_data, annot=True, fmt='.3f', cmap='RdYlGn',
             center=0.5, cbar_kws={'label': 'Score'})
 plt.title('Q2 2023 Sentiment Metrics Heatmap', fontsize=14, fontweight='bold')
 plt.tight_layout()
-plt.savefig('images/sentiment_analysis/sentiment_heatmap.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: images/sentiment_analysis/sentiment_heatmap.png")
+plt.savefig('images/figures/sentiment/sentiment_heatmap.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/figures/sentiment/sentiment_heatmap.png")
 plt.close()
 
 print("\n" + "=" * 60)
 print("✓ All visualizations created!")
 print("\nGenerated files:")
-print("  • images/sentiment_analysis/sentiment_by_ticker.png - Bar chart of sentiment scores")
-print("  • images/sentiment_analysis/sentiment_vs_volume.png - Scatter plot of sentiment vs discussion volume")
-print("  • images/sentiment_analysis/sentiment_distribution.png - Stacked bar of positive/neutral/negative")
-print("  • images/sentiment_analysis/top_5_discussed.png - Most discussed stocks")
-print("  • images/sentiment_analysis/sentiment_heatmap.png - Heatmap of sentiment metrics")
-print("\nThese are ready to show your groupmates!")
+print("  • images/figures/sentiment/sentiment_by_ticker.png - Bar chart of sentiment scores")
+print("  • images/figures/sentiment/sentiment_vs_volume.png - Scatter plot of sentiment vs discussion volume")
+print("  • images/figures/sentiment/sentiment_distribution.png - Stacked bar of positive/neutral/negative")
+print("  • images/figures/sentiment/top_5_discussed.png - Most discussed stocks")
+print("  • images/figures/sentiment/sentiment_heatmap.png - Heatmap of sentiment metrics")

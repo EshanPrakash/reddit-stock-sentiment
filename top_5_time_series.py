@@ -11,8 +11,9 @@ from datetime import datetime
 import yfinance as yf
 import os
 
-# Creating a data and images directory if they don't exist for saving collected posts, keeping the output organized
-os.makedirs('images/time_series', exist_ok=True)
+# Create the data directory and the existing repository image path
+# (use `images/figures/time_series` which is present in the repo)
+os.makedirs('images/figures/time_series', exist_ok=True)
 os.makedirs('data', exist_ok=True)
 
 # Load the filtered Reddit posts from a JSON file produced by filter_posts.py
@@ -52,48 +53,8 @@ df_close = data["Close"]
 df_close.to_csv("./data/top5_price_history_q2_q3_2023.csv")
 print("Saved → top5_price_history_q2_q3_2023.csv")
 
-# Create multi-panel time-series plots for the top 5 tickers
-# Each subplot shows daily closing prices with vertical lines 
-# marking the start of Q2 and Q3 2023
-print("Creating multi-panel time-series plots...")
-fig, axes = plt.subplots(
-    nrows=len(top5),
-    ncols=1,
-    figsize=(12, 18),
-    sharex=True
-)
-
-plt.style.use("ggplot")
-
-q2_start = datetime(2023, 4, 1)
-q3_start = datetime(2023, 7, 1)
-
-# Plot each ticker's closing prices in its own subplot
-for i, ticker in enumerate(top5):
-    ax = axes[i]
-    
-    ax.plot(df_close.index, df_close[ticker], label=ticker, linewidth=1.8)
-
-    # Vertical markers for Q2 and Q3 starts
-    ax.axvline(q2_start, color="black", linestyle="--", linewidth=1)
-    ax.axvline(q3_start, color="black", linestyle="--", linewidth=1)
-
-    ax.set_ylabel("Price (USD)", fontsize=10)
-    ax.set_title(f"{ticker} Daily Closing Price (Q2 + Q3 2023)", fontsize=12)
-    ax.legend()
-
-# Shared x-label
-plt.xlabel("Date", fontsize=12)
-
-# Tight layout
-plt.tight_layout()
-
-# Save the figure as a PNG file to the images directory
-output_path = "./images/time_series/top_5_time_series.png"
-plt.savefig(output_path, dpi=300)
-print(f"Saved PNG figure → {output_path}")
-
-plt.show()
+# Per user request: skip generating or displaying the daily multi-panel price chart.
+print("Skipped generating daily multi-panel price chart (per request)")
 
 # Load sentiment data (need the sentiment scores per post)
 sentiment_file = "./data/reddit_posts_q2_2023_with_sentiment.json"
@@ -200,7 +161,7 @@ plt.xlabel("Date", fontsize=12)
 plt.tight_layout()
 
 # Save the overlay figure
-overlay_output_path = "./images/time_series/top_5_price_sentiment_overlay.png"
+overlay_output_path = "./images/figures/time_series/top_5_price_sentiment_overlay.png"
 plt.savefig(overlay_output_path, dpi=300)
 print(f"Saved PNG figure → {overlay_output_path}")
 
@@ -292,7 +253,7 @@ plt.xlabel("Date", fontsize=12)
 plt.tight_layout()
 
 # Save the overlay figure
-excess_spy_output_path = "./images/time_series/top_5_excess_spy_sentiment_overlay.png"
+excess_spy_output_path = "./images/figures/time_series/top_5_excess_spy_sentiment_overlay.png"
 plt.savefig(excess_spy_output_path, dpi=300)
 print(f"Saved PNG figure → {excess_spy_output_path}")
 
@@ -425,7 +386,7 @@ plt.xlabel("Date", fontsize=12)
 plt.tight_layout()
 
 # Save the overlay figure
-excess_sector_output_path = "./images/time_series/top_5_excess_sector_sentiment_overlay.png"
+excess_sector_output_path = "./images/figures/time_series/top_5_excess_sector_sentiment_overlay.png"
 plt.savefig(excess_sector_output_path, dpi=300)
 print(f"Saved PNG figure → {excess_sector_output_path}")
 
@@ -434,8 +395,7 @@ plt.show()
 print("\n" + "=" * 60)
 print("✓ All time series visualizations complete!")
 print("=" * 60)
-print("\nGenerated files:")
-print("  • images/time_series/top_5_time_series.png - Daily price charts")
-print("  • images/time_series/top_5_price_sentiment_overlay.png - Price change vs sentiment")
-print("  • images/time_series/top_5_excess_spy_sentiment_overlay.png - Excess return vs SPY + sentiment")
-print("  • images/time_series/top_5_excess_sector_sentiment_overlay.png - Excess return vs sector + sentiment")
+print("\nGenerated files (saved):")
+print("  • images/figures/time_series/top_5_price_sentiment_overlay.png - Price change vs sentiment")
+print("  • images/figures/time_series/top_5_excess_spy_sentiment_overlay.png - Excess return vs SPY + sentiment")
+print("  • images/figures/time_series/top_5_excess_sector_sentiment_overlay.png - Excess return vs sector + sentiment")

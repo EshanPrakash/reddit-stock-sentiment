@@ -411,13 +411,12 @@ reddit-stock-sentiment/
 │   ├── sentiment_vs_volume.png                  #
 │   ├── three_models_comparison.png              # Main regression results
 │   ├── top_5_discussed.png                      #
-│   └── top_5_time_series.png                    #
 │
 ├── collect_pullpush.py            # Step 1: Collect Reddit posts
 ├── filter_posts.py                # Step 2: Filter for stock mentions
 ├── sentiment_analysis.py          # Step 3: VADER sentiment analysis
 ├── aggregate_sentiment.py         # Step 4: Aggregate by ticker
-├── top_5_time_series.py           # Step 5: Daily price time-series plots for Top 5 most-mentioned tickers
+├── top_5_time_series.py           # Step 5: Generate price/sentiment overlay visualizations for Top 5 most-mentioned tickers
 ├── yfinance_fetch_q3.py           # Step 6: Fetch Q3 stock returns
 ├── statistical_analysis.py        # Step 7: Statistical analysis
 │
@@ -441,7 +440,7 @@ reddit-stock-sentiment/
    python filter_posts.py              # Filter for stock mentions
    python sentiment_analysis.py        # Compute sentiment scores
    python aggregate_sentiment.py       # Aggregate by ticker
-   python top_5_time_series.py          # Daily price time-series plots for Top 5 most-mentioned tickers
+   python top_5_time_series.py          # Generate price + sentiment overlays for Top 5 tickers
    python yfinance_fetch_q3.py         # Fetch stock returns
    python statistical_analysis.py      # Run statistical analysis
    ```

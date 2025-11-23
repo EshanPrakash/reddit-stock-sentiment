@@ -20,7 +20,8 @@ import yfinance as yf
 import os
 
 # Creating directories if they don't exist
-os.makedirs('images/time_series', exist_ok=True)
+os.makedirs('images/figures/time_series', exist_ok=True)
+os.makedirs('images/diagnostics/time_series', exist_ok=True)
 os.makedirs('data', exist_ok=True)
 
 # Set style for plots
@@ -413,8 +414,8 @@ for i, (return_col, return_label) in enumerate(return_cols):
     ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('./images/time_series/weekly_sentiment_to_returns.png', dpi=300, bbox_inches='tight')
-print("[OK] Saved: images/time_series/weekly_sentiment_to_returns.png")
+plt.savefig('./images/figures/time_series/weekly_sentiment_to_returns.png', dpi=300, bbox_inches='tight')
+print("[OK] Saved: images/figures/time_series/weekly_sentiment_to_returns.png")
 plt.close()
 
 # 2. Scatter plots: Returns(t) -> Sentiment(t+1)
@@ -452,8 +453,8 @@ for i, (return_col, return_label) in enumerate(return_cols):
     ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('./images/time_series/weekly_returns_to_sentiment.png', dpi=300, bbox_inches='tight')
-print("[OK] Saved: images/time_series/weekly_returns_to_sentiment.png")
+plt.savefig('./images/figures/time_series/weekly_returns_to_sentiment.png', dpi=300, bbox_inches='tight')
+print("[OK] Saved: images/figures/time_series/weekly_returns_to_sentiment.png")
 plt.close()
 
 # 3. P-value comparison bar chart
@@ -488,8 +489,8 @@ for bar in bars2:
             ha='center', va='bottom', fontsize=10)
 
 plt.tight_layout()
-plt.savefig('./images/time_series/weekly_pvalue_comparison.png', dpi=300, bbox_inches='tight')
-print("[OK] Saved: images/time_series/weekly_pvalue_comparison.png")
+plt.savefig('./images/diagnostics/time_series/weekly_pvalue_comparison.png', dpi=300, bbox_inches='tight')
+print("[OK] Saved: images/diagnostics/time_series/weekly_pvalue_comparison.png")
 plt.close()
 
 # ============================================================================
