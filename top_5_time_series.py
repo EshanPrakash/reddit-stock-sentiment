@@ -12,7 +12,7 @@ import yfinance as yf
 import os
 
 # Creating a data and images directory if they don't exist for saving collected posts, keeping the output organized
-os.makedirs('images', exist_ok=True)
+os.makedirs('images/time_series', exist_ok=True)
 os.makedirs('data', exist_ok=True)
 
 # Load the filtered Reddit posts from a JSON file produced by filter_posts.py
@@ -89,19 +89,11 @@ plt.xlabel("Date", fontsize=12)
 plt.tight_layout()
 
 # Save the figure as a PNG file to the images directory
-output_path = "./images/top_5_time_series.png"
+output_path = "./images/time_series/top_5_time_series.png"
 plt.savefig(output_path, dpi=300)
 print(f"Saved PNG figure → {output_path}")
 
 plt.show()
-
-# ============================================================================
-# WEEKLY SENTIMENT TIME SERIES FOR TOP 5 STOCKS
-# ============================================================================
-
-print("\n" + "=" * 60)
-print("GENERATING WEEKLY SENTIMENT TIME SERIES")
-print("=" * 60)
 
 # Load sentiment data (need the sentiment scores per post)
 sentiment_file = "./data/reddit_posts_q2_2023_with_sentiment.json"
@@ -138,56 +130,17 @@ weekly_sentiment = weekly_sentiment.dropna()
 
 print(f"Weekly sentiment data points: {len(weekly_sentiment)}")
 
-# Create multi-panel sentiment time series plot
-print("Creating weekly sentiment time series plots...")
-fig, axes = plt.subplots(
-    nrows=len(top5),
-    ncols=1,
-    figsize=(12, 18),
-    sharex=True
-)
-
-plt.style.use("ggplot")
-
-# Color mapping for each ticker
-colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple']
-
-for i, ticker in enumerate(top5):
-    ax = axes[i]
-    ticker_data = weekly_sentiment[weekly_sentiment['ticker'] == ticker].sort_values('week')
-
-    ax.plot(ticker_data['week'], ticker_data['compound'],
-            marker='o', linewidth=2, markersize=6, color=colors[i], label=ticker)
-    ax.fill_between(ticker_data['week'], 0, ticker_data['compound'],
-                    alpha=0.3, color=colors[i])
-
-    # Reference line at 0 (neutral sentiment)
-    ax.axhline(y=0, color='black', linestyle='-', linewidth=0.8, alpha=0.5)
-
-    ax.set_ylabel("Avg Sentiment", fontsize=10)
-    ax.set_title(f"{ticker} Weekly Average Sentiment (Q2 2023)", fontsize=12)
-    ax.set_ylim(-1, 1)
-    ax.legend(loc='upper right')
-
-# Shared x-label
-plt.xlabel("Week", fontsize=12)
-
-plt.tight_layout()
-
-# Save the sentiment time series figure
-sentiment_output_path = "./images/top_5_sentiment_time_series.png"
-plt.savefig(sentiment_output_path, dpi=300)
-print(f"Saved PNG figure → {sentiment_output_path}")
-
-plt.show()
-
 # ============================================================================
-# OVERLAY: PRICE + SENTIMENT ON SAME GRAPH (DUAL Y-AXIS)
+# OVERLAY: PRICE CHANGE + SENTIMENT ON SAME GRAPH (DUAL Y-AXIS)
 # ============================================================================
 
 print("\n" + "=" * 60)
 print("GENERATING OVERLAY: PRICE + SENTIMENT")
 print("=" * 60)
+
+# Resample price to weekly (W-MON) and compute percent change
+price_weekly = df_close.resample('W-MON').last()
+price_pct_change = price_weekly.pct_change() * 100  # Convert to percentage
 
 # Create multi-panel overlay plot
 fig, axes = plt.subplots(
@@ -202,33 +155,39 @@ plt.style.use("ggplot")
 for i, ticker in enumerate(top5):
     ax1 = axes[i]
 
-    # Get price data (Q2 only to match sentiment period)
-    price_q2 = df_close[ticker].loc[df_close.index < '2023-07-01']
+    # Get weekly sentiment for this ticker
+    ticker_sentiment = weekly_sentiment[weekly_sentiment['ticker'] == ticker].sort_values('week')
 
-    # Plot price on left y-axis
-    line1 = ax1.plot(price_q2.index, price_q2,
-                     color='steelblue', linewidth=2, label='Price')
-    ax1.set_ylabel("Price (USD)", fontsize=10, color='steelblue')
+    # Get weekly price percent change, aligned to sentiment weeks
+    ticker_pct = price_pct_change[ticker].dropna()
+    # Only keep weeks that exist in both datasets
+    common_weeks = ticker_pct.index.intersection(ticker_sentiment['week'])
+    ticker_pct = ticker_pct.loc[common_weeks]
+    ticker_sentiment = ticker_sentiment[ticker_sentiment['week'].isin(common_weeks)]
+
+    # Plot price percent change on left y-axis
+    ax1.plot(ticker_pct.index, ticker_pct,
+             color='steelblue', linewidth=2, marker='o', markersize=4, label='Price % Change')
+    ax1.axhline(y=0, color='steelblue', linestyle='--', linewidth=0.8, alpha=0.5)
+    ax1.set_ylabel("Weekly Price Change (%)", fontsize=10, color='steelblue')
     ax1.tick_params(axis='y', labelcolor='steelblue')
+    # Set symmetric y-limits so 0 is centered
+    price_max = max(abs(ticker_pct.min()), abs(ticker_pct.max())) * 1.1
+    ax1.set_ylim(-price_max, price_max)
 
     # Create second y-axis for sentiment
     ax2 = ax1.twinx()
 
-    # Get weekly sentiment for this ticker
-    ticker_sentiment = weekly_sentiment[weekly_sentiment['ticker'] == ticker].sort_values('week')
-
     # Plot sentiment on right y-axis
-    line2 = ax2.plot(ticker_sentiment['week'], ticker_sentiment['compound'],
-                     color='darkorange', linewidth=2, marker='o', markersize=5, label='Sentiment')
-    ax2.fill_between(ticker_sentiment['week'], 0, ticker_sentiment['compound'],
-                     alpha=0.2, color='darkorange')
+    ax2.plot(ticker_sentiment['week'], ticker_sentiment['compound'],
+             color='darkorange', linewidth=2, marker='o', markersize=4, label='Sentiment')
     ax2.set_ylabel("Sentiment", fontsize=10, color='darkorange')
     ax2.tick_params(axis='y', labelcolor='darkorange')
     ax2.set_ylim(-1, 1)
     ax2.axhline(y=0, color='darkorange', linestyle='--', linewidth=0.8, alpha=0.5)
 
     # Title and legend
-    ax1.set_title(f"{ticker}: Price vs Weekly Sentiment (Q2 2023)", fontsize=12)
+    ax1.set_title(f"{ticker}: Weekly Price Change vs Weekly Sentiment (Q2 2023)", fontsize=12)
 
     # Combine legends
     lines1, labels1 = ax1.get_legend_handles_labels()
@@ -241,86 +200,8 @@ plt.xlabel("Date", fontsize=12)
 plt.tight_layout()
 
 # Save the overlay figure
-overlay_output_path = "./images/top_5_price_sentiment_overlay.png"
+overlay_output_path = "./images/time_series/top_5_price_sentiment_overlay.png"
 plt.savefig(overlay_output_path, dpi=300)
 print(f"Saved PNG figure → {overlay_output_path}")
 
 plt.show()
-
-# ============================================================================
-# Z-SCORE DIFFERENCE: NORMALIZED PRICE vs SENTIMENT
-# ============================================================================
-
-print("\n" + "=" * 60)
-print("GENERATING Z-SCORE DIFFERENCE TIME SERIES")
-print("=" * 60)
-
-# Function to compute z-score
-def zscore(series):
-    return (series - series.mean()) / series.std()
-
-# Create multi-panel z-score difference plot
-fig, axes = plt.subplots(
-    nrows=len(top5),
-    ncols=1,
-    figsize=(14, 20),
-    sharex=True
-)
-
-plt.style.use("ggplot")
-
-for i, ticker in enumerate(top5):
-    ax = axes[i]
-
-    # Get weekly price data (resample daily to weekly, using Monday as week start)
-    price_q2 = df_close[ticker].loc[df_close.index < '2023-07-01']
-    weekly_price = price_q2.resample('W-MON').mean()
-
-    # Get weekly sentiment for this ticker (already aggregated with W-MON)
-    ticker_sent_data = weekly_sentiment[weekly_sentiment['ticker'] == ticker].copy()
-    weekly_sent_series = ticker_sent_data.set_index('week')['compound']
-
-    # Align the two series by their common dates
-    common_weeks = weekly_price.index.intersection(weekly_sent_series.index)
-    if len(common_weeks) < 2:
-        ax.text(0.5, 0.5, f"{ticker}: Insufficient data", ha='center', va='center', transform=ax.transAxes)
-        continue
-
-    price_aligned = weekly_price.loc[common_weeks]
-    sentiment_aligned = weekly_sent_series.loc[common_weeks]
-
-    # Compute z-scores
-    price_z = zscore(price_aligned)
-    sentiment_z = zscore(sentiment_aligned)
-
-    # Z-score difference: sentiment - price
-    # Positive = sentiment ahead of price, Negative = price ahead of sentiment
-    z_diff = sentiment_z - price_z
-
-    # Plot z-scores and difference
-    ax.plot(common_weeks, price_z, color='steelblue', linewidth=2, label='Price (z)')
-    ax.plot(common_weeks, sentiment_z, color='darkorange', linewidth=2, label='Sentiment (z)')
-    ax.bar(common_weeks, z_diff, width=5, alpha=0.4, color='green', label='Difference (Sent - Price)')
-
-    # Reference line at 0
-    ax.axhline(y=0, color='black', linestyle='-', linewidth=0.8, alpha=0.5)
-
-    ax.set_ylabel("Z-Score", fontsize=10)
-    ax.set_title(f"{ticker}: Z-Score Comparison (Q2 2023)", fontsize=12)
-    ax.legend(loc='upper left', fontsize=9)
-
-# Shared x-label
-plt.xlabel("Week", fontsize=12)
-
-plt.tight_layout()
-
-# Save the z-score figure
-zscore_output_path = "./images/top_5_zscore_difference.png"
-plt.savefig(zscore_output_path, dpi=300)
-print(f"Saved PNG figure → {zscore_output_path}")
-
-plt.show()
-
-print("\n" + "=" * 60)
-print("COMPLETE!")
-print("=" * 60)

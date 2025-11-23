@@ -11,7 +11,7 @@ import yfinance as yf
 import os
 
 # Creating directories if they don't exist
-os.makedirs('images', exist_ok=True)
+os.makedirs('images/time_series', exist_ok=True)
 os.makedirs('data', exist_ok=True)
 
 # Load the filtered Reddit posts
@@ -105,7 +105,7 @@ fig.suptitle('Supplementary Stocks: Daily Closing Prices (Q2 + Q3 2023)',
 plt.tight_layout(rect=[0, 0.03, 1, 0.95])
 
 # Save figure
-output_path = "./images/supplementary_time_series.png"
+output_path = "./images/time_series/supplementary_time_series.png"
 plt.savefig(output_path, dpi=300, bbox_inches='tight')
 print(f"Saved PNG figure -> {output_path}")
 

@@ -15,7 +15,8 @@ import os
 
 # Creating a data and images directory if they don't exist for saving collected posts, keeping the output organized
 os.makedirs('data', exist_ok=True)
-os.makedirs('images', exist_ok=True)
+os.makedirs('images/hypothesis_tests', exist_ok=True)
+os.makedirs('images/model_performance', exist_ok=True)
 
 # Set style for seaborn and matplotlib styles for better-looking plots
 sns.set_style("whitegrid")
@@ -271,8 +272,8 @@ axes[2].grid(True, alpha=0.3)
 
 # Adjust layout and save figures as a PNG file
 plt.tight_layout()
-plt.savefig('images/three_models_comparison.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: images/three_models_comparison.png")
+plt.savefig('images/hypothesis_tests/three_models_comparison.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/hypothesis_tests/three_models_comparison.png")
 plt.close()
 
 # Visualization 2: Annotated scatter plot (Model 2 - most important)
@@ -300,8 +301,8 @@ plt.axvline(x=0, color='black', linestyle='-', linewidth=0.8, alpha=0.3)
 
 # Adjust layout and save figure as a PNG file
 plt.tight_layout()
-plt.savefig('images/sentiment_vs_excess_spy_labeled.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: images/sentiment_vs_excess_spy_labeled.png")
+plt.savefig('images/hypothesis_tests/sentiment_vs_excess_spy_labeled.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/hypothesis_tests/sentiment_vs_excess_spy_labeled.png")
 plt.close()
 
 # Visualization 3: Residual plots for all three models
@@ -330,8 +331,8 @@ axes[2].grid(True, alpha=0.3)
 
 # Adjust layout and save figures as a PNG file
 plt.tight_layout()
-plt.savefig('images/residual_plots.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: images/residual_plots.png")
+plt.savefig('images/model_performance/residual_plots.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/model_performance/residual_plots.png")
 plt.close()
 
 # Visualization 4: Comparison bar chart of R² values
@@ -355,8 +356,8 @@ plt.grid(True, alpha=0.3, axis='y')
 
 # Adjust layout and save figure as a PNG file
 plt.tight_layout()
-plt.savefig('images/r_squared_comparison.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: images/r_squared_comparison.png")
+plt.savefig('images/model_performance/r_squared_comparison.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/model_performance/r_squared_comparison.png")
 plt.close()
 
 # Visualization 5: Correlation coefficients comparison
@@ -382,8 +383,8 @@ ax.axhline(y=0, color='black', linestyle='-', linewidth=0.8)
 
 # Adjust layout and save figures as a PNG file
 plt.tight_layout()
-plt.savefig('images/correlation_comparison.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: images/correlation_comparison.png")
+plt.savefig('images/model_performance/correlation_comparison.png', dpi=300, bbox_inches='tight')
+print("✓ Saved: images/model_performance/correlation_comparison.png")
 plt.close()
 
 # Visualization #6: SECTOR-HIGHLIGHTED CORRELATION PLOT
@@ -440,8 +441,8 @@ plt.legend()
 plt.tight_layout()
 
 # Save figure as PNG file
-plt.savefig("./images/sector_highlight_scatter.png", dpi=300, bbox_inches='tight')
-print("✓ Saved: images/sector_highlight_scatter.png")
+plt.savefig("./images/hypothesis_tests/sector_highlight_scatter.png", dpi=300, bbox_inches='tight')
+print("✓ Saved: images/hypothesis_tests/sector_highlight_scatter.png")
 
 plt.show()
 
@@ -474,8 +475,8 @@ plt.legend()
 
 # Adjust layout and save figure as PNG file
 plt.tight_layout()
-plt.savefig("./images/sector_trendlines.png", dpi=300, bbox_inches='tight')
-print("✓ Saved: images/sector_trendlines.png")
+plt.savefig("./images/hypothesis_tests/sector_trendlines.png", dpi=300, bbox_inches='tight')
+print("✓ Saved: images/hypothesis_tests/sector_trendlines.png")
 
 plt.show()
 
@@ -486,13 +487,13 @@ print("=" * 70)
 print("\nGenerated files:")
 print("  • data/merged_sentiment_returns.csv - Combined dataset")
 print("  • data/regression_summary.csv - Statistical summary")
-print("  • images/three_models_comparison.png - Side-by-side regression plots")
-print("  • images/sentiment_vs_excess_spy_labeled.png - Detailed scatter with tickers")
-print("  • images/residual_plots.png - Regression diagnostics")
-print("  • images/r_squared_comparison.png - Model explanatory power")
-print("  • images/correlation_comparison.png - Pearson vs Spearman")
-print("  • images/sector_highlight_scatter.png - Top 5 Sector-highlighted scatterplot")
-print("  • images/sector_trendlines.png - Top 5 Sector-specific regression lines")
+print("  • images/hypothesis_tests/three_models_comparison.png - Side-by-side regression plots")
+print("  • images/hypothesis_tests/sentiment_vs_excess_spy_labeled.png - Detailed scatter with tickers")
+print("  • images/model_performance/residual_plots.png - Regression diagnostics")
+print("  • images/model_performance/r_squared_comparison.png - Model explanatory power")
+print("  • images/model_performance/correlation_comparison.png - Pearson vs Spearman")
+print("  • images/hypothesis_tests/sector_highlight_scatter.png - Sector-highlighted scatterplot")
+print("  • images/hypothesis_tests/sector_trendlines.png - Sector-specific regression lines")
 
 # Interpretation helper
 print("\n" + "=" * 70)
