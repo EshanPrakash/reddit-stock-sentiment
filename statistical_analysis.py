@@ -22,6 +22,25 @@ os.makedirs('images/diagnostics/model', exist_ok=True)
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (10, 6)
 
+# ============================================================================
+# UNIFIED COLOR SCHEME
+# ============================================================================
+COLORS = {
+    'positive': '#2ecc71',      # Green for positive sentiment
+    'negative': '#e74c3c',      # Red for negative sentiment
+    'neutral': '#95a5a6',       # Gray for neutral
+    'returns': '#3498db',       # Blue for price/returns data
+    'sentiment': '#e67e22',     # Orange for sentiment data
+    'regression': '#2c3e50',    # Black for regression lines
+}
+
+# Sector colors for scatter plots
+SECTOR_COLORS = {
+    'Tech': '#3498db',      # Blue (same as returns)
+    'Finance': '#e74c3c',   # Red (same as negative)
+    'Other': '#2ecc71',     # Green (same as positive)
+}
+
 print("=" * 70)
 print("SENTIMENT-RETURN CORRELATION ANALYSIS")
 print("=" * 70)
@@ -244,8 +263,8 @@ print("=" * 70)
 fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
 # Model 1: Raw Returns
-axes[0].scatter(X1, y1, alpha=0.6, s=80, color='steelblue')
-axes[0].plot(X1, y1_pred, color='red', linewidth=2, label=f'y = {intercept1:.2f} + {coefficient1:.2f}x')
+axes[0].scatter(X1, y1, s=80, color=COLORS['returns'])
+axes[0].plot(X1, y1_pred, color=COLORS['regression'], linewidth=2, label=f'y = {intercept1:.2f} + {coefficient1:.2f}x')
 axes[0].set_xlabel('Q2 2023 Average Sentiment', fontsize=11)
 axes[0].set_ylabel('Q3 2023 Return (%)', fontsize=11)
 axes[0].set_title(f'Model 1: Raw Returns\nR² = {r_squared1:.4f}, p = {pearson_p1:.4f}', fontsize=12, fontweight='bold')
@@ -253,8 +272,8 @@ axes[0].legend()
 axes[0].grid(True, alpha=0.3)
 
 # Model 2: vs SPY
-axes[1].scatter(X2, y2, alpha=0.6, s=80, color='green')
-axes[1].plot(X2, y2_pred, color='red', linewidth=2, label=f'y = {intercept2:.2f} + {coefficient2:.2f}x')
+axes[1].scatter(X2, y2, s=80, color=COLORS['positive'])
+axes[1].plot(X2, y2_pred, color=COLORS['regression'], linewidth=2, label=f'y = {intercept2:.2f} + {coefficient2:.2f}x')
 axes[1].set_xlabel('Q2 2023 Average Sentiment', fontsize=11)
 axes[1].set_ylabel('Q3 2023 Excess Return vs SPY (%)', fontsize=11)
 axes[1].set_title(f'Model 2: Market-Adjusted\nR² = {r_squared2:.4f}, p = {pearson_p2:.4f}', fontsize=12, fontweight='bold')
@@ -262,8 +281,8 @@ axes[1].legend()
 axes[1].grid(True, alpha=0.3)
 
 # Model 3: vs Sector
-axes[2].scatter(X3, y3, alpha=0.6, s=80, color='purple')
-axes[2].plot(X3, y3_pred, color='red', linewidth=2, label=f'y = {intercept3:.2f} + {coefficient3:.2f}x')
+axes[2].scatter(X3, y3, s=80, color=COLORS['negative'])
+axes[2].plot(X3, y3_pred, color=COLORS['regression'], linewidth=2, label=f'y = {intercept3:.2f} + {coefficient3:.2f}x')
 axes[2].set_xlabel('Q2 2023 Average Sentiment', fontsize=11)
 axes[2].set_ylabel('Q3 2023 Excess Return vs Sector (%)', fontsize=11)
 axes[2].set_title(f'Model 3: Sector-Adjusted\nR² = {r_squared3:.4f}, p = {pearson_p3:.4f}', fontsize=12, fontweight='bold')
@@ -276,54 +295,25 @@ plt.savefig('images/figures/hypothesis/three_models_comparison.png', dpi=300, bb
 print("✓ Saved: images/figures/hypothesis/three_models_comparison.png")
 plt.close()
 
-# Visualization 2: Annotated scatter plot (Model 2 - most important)
-plt.figure(figsize=(12, 8))
-plt.scatter(X2, y2, s=100, alpha=0.6, color='steelblue')
-
-# Add ticker labels to each point
-for i, row in merged_df.iterrows():
-    plt.annotate(row['ticker'], 
-                (row['q2_2023_avg_sentiment'], row['excess_vs_spy']),
-                fontsize=9, alpha=0.7, ha='center')
-
-# Regression line for Model 2
-plt.plot(X2, y2_pred, color='red', linewidth=2, linestyle='--', 
-         label=f'Regression Line: y = {intercept2:.2f} + {coefficient2:.2f}x')
-
-plt.xlabel('Q2 2023 Average Sentiment Score', fontsize=13)
-plt.ylabel('Q3 2023 Excess Return vs SPY (%)', fontsize=13)
-plt.title(f'Reddit Sentiment vs Stock Performance (Market-Adjusted)\nPearson r = {pearson_r2:.4f}, p = {pearson_p2:.4f}, R² = {r_squared2:.4f}', 
-          fontsize=14, fontweight='bold')
-plt.legend(fontsize=11)
-plt.grid(True, alpha=0.3)
-plt.axhline(y=0, color='black', linestyle='-', linewidth=0.8, alpha=0.3)
-plt.axvline(x=0, color='black', linestyle='-', linewidth=0.8, alpha=0.3)
-
-# Adjust layout and save figure as a PNG file
-plt.tight_layout()
-plt.savefig('images/figures/hypothesis/sentiment_vs_excess_spy_labeled.png', dpi=300, bbox_inches='tight')
-print("✓ Saved: images/figures/hypothesis/sentiment_vs_excess_spy_labeled.png")
-plt.close()
-
-# Visualization 3: Residual plots for all three models
+# Visualization 2: Residual plots for all three models
 fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
-axes[0].scatter(y1_pred, residuals1, alpha=0.6, color='steelblue')
-axes[0].axhline(y=0, color='red', linestyle='--', linewidth=2)
+axes[0].scatter(y1_pred, residuals1, color=COLORS['returns'])
+axes[0].axhline(y=0, color=COLORS['regression'], linestyle='--', linewidth=2)
 axes[0].set_xlabel('Fitted Values', fontsize=11)
 axes[0].set_ylabel('Residuals', fontsize=11)
 axes[0].set_title('Model 1: Residual Plot', fontsize=12, fontweight='bold')
 axes[0].grid(True, alpha=0.3)
 
-axes[1].scatter(y2_pred, residuals2, alpha=0.6, color='green')
-axes[1].axhline(y=0, color='red', linestyle='--', linewidth=2)
+axes[1].scatter(y2_pred, residuals2, color=COLORS['positive'])
+axes[1].axhline(y=0, color=COLORS['regression'], linestyle='--', linewidth=2)
 axes[1].set_xlabel('Fitted Values', fontsize=11)
 axes[1].set_ylabel('Residuals', fontsize=11)
 axes[1].set_title('Model 2: Residual Plot', fontsize=12, fontweight='bold')
 axes[1].grid(True, alpha=0.3)
 
-axes[2].scatter(y3_pred, residuals3, alpha=0.6, color='purple')
-axes[2].axhline(y=0, color='red', linestyle='--', linewidth=2)
+axes[2].scatter(y3_pred, residuals3, color=COLORS['negative'])
+axes[2].axhline(y=0, color=COLORS['regression'], linestyle='--', linewidth=2)
 axes[2].set_xlabel('Fitted Values', fontsize=11)
 axes[2].set_ylabel('Residuals', fontsize=11)
 axes[2].set_title('Model 3: Residual Plot', fontsize=12, fontweight='bold')
@@ -338,10 +328,10 @@ plt.close()
 # Visualization 4: Comparison bar chart of R² values
 models = ['Raw Returns', 'vs SPY', 'vs Sector']
 r_squared_values = [r_squared1, r_squared2, r_squared3]
-colors = ['steelblue', 'green', 'purple']
+model_colors = [COLORS['returns'], COLORS['positive'], COLORS['negative']]
 
 plt.figure(figsize=(10, 6))
-bars = plt.bar(models, r_squared_values, color=colors, alpha=0.7, edgecolor='black')
+bars = plt.bar(models, r_squared_values, color=model_colors, edgecolor='black')
 plt.ylabel('R² Value', fontsize=13)
 plt.title('Model Comparison: Explanatory Power (R²)', fontsize=14, fontweight='bold')
 plt.ylim(0, max(r_squared_values) * 1.3)
@@ -361,6 +351,7 @@ print("✓ Saved: images/diagnostics/model/r_squared_comparison.png")
 plt.close()
 
 # Visualization 5: Correlation coefficients comparison
+# RGB pattern for models, solid vs hatched for Pearson vs Spearman
 fig, ax = plt.subplots(figsize=(10, 6))
 
 x_pos = np.arange(len(models))
@@ -369,15 +360,26 @@ width = 0.35
 pearson_values = [pearson_r1, pearson_r2, pearson_r3]
 spearman_values = [spearman_r1, spearman_r2, spearman_r3]
 
-bars1 = ax.bar(x_pos - width/2, pearson_values, width, label='Pearson r', alpha=0.8, color='coral')
-bars2 = ax.bar(x_pos + width/2, spearman_values, width, label='Spearman ρ', alpha=0.8, color='teal')
+# Pearson: solid bars with RGB colors
+bars1 = ax.bar(x_pos - width/2, pearson_values, width,
+               color=model_colors, edgecolor='black')
+# Spearman: hatched bars with RGB colors
+bars2 = ax.bar(x_pos + width/2, spearman_values, width,
+               color=model_colors, edgecolor='black', hatch='//')
+
+# Custom legend with white/gray boxes showing solid vs hatched
+from matplotlib.patches import Patch
+legend_elements = [
+    Patch(facecolor='white', edgecolor='black', label='Pearson r'),
+    Patch(facecolor='white', edgecolor='black', hatch='//', label='Spearman ρ')
+]
 
 ax.set_xlabel('Model', fontsize=13)
 ax.set_ylabel('Correlation Coefficient', fontsize=13)
 ax.set_title('Correlation Coefficients Across Models', fontsize=14, fontweight='bold')
 ax.set_xticks(x_pos)
 ax.set_xticklabels(models)
-ax.legend()
+ax.legend(handles=legend_elements)
 ax.grid(True, alpha=0.3, axis='y')
 ax.axhline(y=0, color='black', linestyle='-', linewidth=0.8)
 
@@ -411,11 +413,7 @@ df["Sector"] = df["ticker"].apply(map_sector)
 # Scatter plot with sector highlights
 plt.figure(figsize=(10, 7))
 
-sector_colors = {
-    "Tech": "tab:blue",
-    "Finance": "tab:red",
-    "Other": "tab:green"
-}
+sector_colors = SECTOR_COLORS
 
 # Plot each sector with different colors
 for sector, color in sector_colors.items():
@@ -425,7 +423,6 @@ for sector, color in sector_colors.items():
         subset["q3_return_pct"],
         color=color,
         s=120,
-        alpha=0.75,
         label=sector
     )
 
@@ -455,7 +452,7 @@ for sector, color in sector_colors.items():
     x = subset["q2_2023_avg_sentiment"]   # FIXED
     y = subset["q3_return_pct"]           # FIXED
 
-    plt.scatter(x, y, color=color, s=120, alpha=0.6, label=f"{sector} points")
+    plt.scatter(x, y, color=color, s=120, label=f"{sector} points")
 
     # Regression line
     if len(subset) >= 2:
@@ -488,7 +485,6 @@ print("\nGenerated files:")
 print("  • data/merged_sentiment_returns.csv - Combined dataset")
 print("  • data/regression_summary.csv - Statistical summary")
 print("  • images/figures/hypothesis/three_models_comparison.png - Side-by-side regression plots")
-print("  • images/figures/hypothesis/sentiment_vs_excess_spy_labeled.png - Detailed scatter with tickers")
 print("  • images/diagnostics/model/residual_plots.png - Regression diagnostics")
 print("  • images/diagnostics/model/r_squared_comparison.png - Model explanatory power")
 print("  • images/diagnostics/model/correlation_comparison.png - Pearson vs Spearman")

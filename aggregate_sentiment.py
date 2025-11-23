@@ -7,6 +7,7 @@ import json
 import statistics
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
 import seaborn as sns
 import os
 
@@ -17,6 +18,28 @@ os.makedirs('images/figures/sentiment', exist_ok=True)
 # Set style for seaborn and matplotlib styles for better-looking plots
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (12, 8)
+
+# ============================================================================
+# UNIFIED COLOR SCHEME
+# ============================================================================
+COLORS = {
+    'positive': '#2ecc71',      # Green for positive sentiment
+    'negative': '#e74c3c',      # Red for negative sentiment
+    'neutral': '#95a5a6',       # Gray for neutral
+    'returns': '#3498db',       # Blue for price/returns data
+    'sentiment': '#e67e22',     # Orange for sentiment data
+    'regression': '#2c3e50',    # Black for regression lines
+}
+
+# Distinct colors for top 5 tickers (used in bar charts where we want to distinguish them)
+TOP5_COLORS = ['#e74c3c', '#2ecc71', '#3498db', '#e67e22', '#9b59b6']  # Red, Green, Blue, Orange, Purple
+
+# Custom colormap using our exact red/yellow/green colors for gradients
+# This ensures scatter plots and heatmaps use the same red/green as bar charts
+SENTIMENT_CMAP = LinearSegmentedColormap.from_list(
+    'sentiment',
+    [COLORS['negative'], '#ffff00', COLORS['positive']]  # Red -> Pure Yellow -> Green
+)
 
 # Load the Reddit posts with sentiment scores from a JSON file produced by sentiment_analysis.py
 input_file = "data/reddit_posts_q2_2023_with_sentiment.json"
@@ -125,8 +148,8 @@ print("=" * 60)
 # Horizontal bar chart for better readability with color coding
 # Green for positive, red for negative sentiment
 plt.figure(figsize=(12, 6))
-colors = ['green' if x > 0 else 'red' for x in df['q2_2023_avg_sentiment']]
-plt.barh(df['ticker'], df['q2_2023_avg_sentiment'], color=colors, alpha=0.7)
+colors = [COLORS['positive'] if x > 0 else COLORS['negative'] for x in df['q2_2023_avg_sentiment']]
+plt.barh(df['ticker'], df['q2_2023_avg_sentiment'], color=colors)
 plt.xlabel('Average Sentiment Score', fontsize=12)
 plt.ylabel('Stock Ticker', fontsize=12)
 plt.title('Q2 2023 Reddit Sentiment by Stock Ticker', fontsize=14, fontweight='bold')
@@ -140,8 +163,8 @@ plt.close()
 # Size of points represents number of posts, color represents sentiment
 # Positive sentiment in green, negative in red
 plt.figure(figsize=(10, 6))
-plt.scatter(df['q2_2023_post_count'], df['q2_2023_avg_sentiment'], 
-            s=100, alpha=0.6, c=df['q2_2023_avg_sentiment'], cmap='RdYlGn')
+plt.scatter(df['q2_2023_post_count'], df['q2_2023_avg_sentiment'],
+            s=100, c=df['q2_2023_avg_sentiment'], cmap=SENTIMENT_CMAP)
 for idx, row in df.iterrows():
     plt.annotate(row['ticker'], 
                 (row['q2_2023_post_count'], row['q2_2023_avg_sentiment']),
@@ -161,7 +184,7 @@ plt.close()
 plt.figure(figsize=(12, 6))
 sentiment_data = df.sort_values('q2_2023_post_count', ascending=False)[['ticker', 'positive_posts', 'neutral_posts', 'negative_posts']].set_index('ticker')
 sentiment_data.plot(kind='barh', stacked=True,
-                   color=['#2ecc71', '#95a5a6', '#e74c3c'],
+                   color=[COLORS['positive'], COLORS['neutral'], COLORS['negative']],
                    figsize=(12, 6))
 plt.xlabel('Number of Posts', fontsize=12)
 plt.ylabel('Stock Ticker', fontsize=12)
@@ -174,11 +197,10 @@ plt.close()
 
 # 4. Bar Chart with the Top 5 most discussed stocks
 # Highlighting the most mentioned stocks in Q2 2023
-# Distinct colors are used for the top 5 stocks
+# Use a consistent color palette for the bars
 plt.figure(figsize=(10, 6))
 top_5 = df.nlargest(5, 'q2_2023_post_count')
-colors_top5 = sns.color_palette("viridis", 5)
-plt.bar(top_5['ticker'], top_5['q2_2023_post_count'], color=colors_top5)
+plt.bar(top_5['ticker'], top_5['q2_2023_post_count'], color=TOP5_COLORS)
 plt.xlabel('Stock Ticker', fontsize=12)
 plt.ylabel('Number of Posts', fontsize=12)
 plt.title('Top 5 Most Discussed Stocks on Reddit (Q2 2023)', fontsize=14, fontweight='bold')
@@ -194,8 +216,8 @@ plt.close()
 # Combining average sentiment and positive ratio for each ticker
 plt.figure(figsize=(10, 8))
 heatmap_data = df[['ticker', 'q2_2023_avg_sentiment', 'positive_ratio']].set_index('ticker')
-sns.heatmap(heatmap_data, annot=True, fmt='.3f', cmap='RdYlGn', 
-            center=0.5, cbar_kws={'label': 'Score'})
+sns.heatmap(heatmap_data, annot=True, fmt='.3f', cmap=SENTIMENT_CMAP,
+            cbar_kws={'label': 'Score'})
 plt.title('Q2 2023 Sentiment Metrics Heatmap', fontsize=14, fontweight='bold')
 plt.tight_layout()
 plt.savefig('images/figures/sentiment/sentiment_heatmap.png', dpi=300, bbox_inches='tight')

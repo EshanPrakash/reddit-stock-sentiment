@@ -16,6 +16,18 @@ import os
 os.makedirs('images/figures/time_series', exist_ok=True)
 os.makedirs('data', exist_ok=True)
 
+# ============================================================================
+# UNIFIED COLOR SCHEME
+# ============================================================================
+COLORS = {
+    'positive': '#2ecc71',      # Green for positive sentiment
+    'negative': '#e74c3c',      # Red for negative sentiment
+    'neutral': '#95a5a6',       # Gray for neutral
+    'returns': '#3498db',       # Blue for price/returns data
+    'sentiment': '#e67e22',     # Orange for sentiment data
+    'regression': '#2c3e50',    # Black for regression lines
+}
+
 # Load the filtered Reddit posts from a JSON file produced by filter_posts.py
 input_file = "./data/reddit_posts_q2_2023_filtered.json"
 print(f"Loading filtered posts from {input_file}...")
@@ -128,10 +140,10 @@ for i, ticker in enumerate(top5):
 
     # Plot price percent change on left y-axis
     ax1.plot(ticker_pct.index, ticker_pct,
-             color='steelblue', linewidth=2, marker='o', markersize=4, label='Price % Change')
-    ax1.axhline(y=0, color='steelblue', linestyle='--', linewidth=0.8, alpha=0.5)
-    ax1.set_ylabel("Weekly Price Change (%)", fontsize=10, color='steelblue')
-    ax1.tick_params(axis='y', labelcolor='steelblue')
+             color=COLORS['returns'], linewidth=2, marker='o', markersize=4, label='Price % Change')
+    ax1.axhline(y=0, color=COLORS['returns'], linestyle='--', linewidth=0.8, alpha=0.5)
+    ax1.set_ylabel("Weekly Price Change (%)", fontsize=10, color=COLORS['returns'])
+    ax1.tick_params(axis='y', labelcolor=COLORS['returns'])
     # Set symmetric y-limits so 0 is centered
     price_max = max(abs(ticker_pct.min()), abs(ticker_pct.max())) * 1.1
     ax1.set_ylim(-price_max, price_max)
@@ -141,11 +153,11 @@ for i, ticker in enumerate(top5):
 
     # Plot sentiment on right y-axis
     ax2.plot(ticker_sentiment['week'], ticker_sentiment['compound'],
-             color='darkorange', linewidth=2, marker='o', markersize=4, label='Sentiment')
-    ax2.set_ylabel("Sentiment", fontsize=10, color='darkorange')
-    ax2.tick_params(axis='y', labelcolor='darkorange')
+             color=COLORS['regression'], linewidth=2, marker='o', markersize=4, label='Sentiment')
+    ax2.set_ylabel("Sentiment", fontsize=10, color=COLORS['regression'])
+    ax2.tick_params(axis='y', labelcolor=COLORS['regression'])
     ax2.set_ylim(-1, 1)
-    ax2.axhline(y=0, color='darkorange', linestyle='--', linewidth=0.8, alpha=0.5)
+    ax2.axhline(y=0, color=COLORS['regression'], linestyle='--', linewidth=0.8, alpha=0.5)
 
     # Title and legend
     ax1.set_title(f"{ticker}: Weekly Price Change vs Weekly Sentiment (Q2 2023)", fontsize=12)
@@ -219,10 +231,10 @@ for i, ticker in enumerate(top5):
 
     # Plot excess return vs SPY on left y-axis
     ax1.plot(excess_vs_spy.index, excess_vs_spy,
-             color='green', linewidth=2, marker='o', markersize=4, label='Excess Return vs SPY')
-    ax1.axhline(y=0, color='green', linestyle='--', linewidth=0.8, alpha=0.5)
-    ax1.set_ylabel("Excess Return vs SPY (%)", fontsize=10, color='green')
-    ax1.tick_params(axis='y', labelcolor='green')
+             color=COLORS['positive'], linewidth=2, marker='o', markersize=4, label='Excess Return vs SPY')
+    ax1.axhline(y=0, color=COLORS['positive'], linestyle='--', linewidth=0.8, alpha=0.5)
+    ax1.set_ylabel("Excess Return vs SPY (%)", fontsize=10, color=COLORS['positive'])
+    ax1.tick_params(axis='y', labelcolor=COLORS['positive'])
     # Set symmetric y-limits so 0 is centered
     if len(excess_vs_spy) > 0:
         excess_max = max(abs(excess_vs_spy.min().item()), abs(excess_vs_spy.max().item())) * 1.1
@@ -233,11 +245,11 @@ for i, ticker in enumerate(top5):
 
     # Plot sentiment on right y-axis
     ax2.plot(ticker_sentiment_filtered['week'], ticker_sentiment_filtered['compound'],
-             color='darkorange', linewidth=2, marker='o', markersize=4, label='Sentiment')
-    ax2.set_ylabel("Sentiment", fontsize=10, color='darkorange')
-    ax2.tick_params(axis='y', labelcolor='darkorange')
+             color=COLORS['regression'], linewidth=2, marker='o', markersize=4, label='Sentiment')
+    ax2.set_ylabel("Sentiment", fontsize=10, color=COLORS['regression'])
+    ax2.tick_params(axis='y', labelcolor=COLORS['regression'])
     ax2.set_ylim(-1, 1)
-    ax2.axhline(y=0, color='darkorange', linestyle='--', linewidth=0.8, alpha=0.5)
+    ax2.axhline(y=0, color=COLORS['regression'], linestyle='--', linewidth=0.8, alpha=0.5)
 
     # Title and legend
     ax1.set_title(f"{ticker}: Weekly Excess Return vs SPY + Sentiment (Q2 2023)", fontsize=12)
@@ -348,11 +360,11 @@ for i, ticker in enumerate(top5):
 
         # Plot excess return vs sector on left y-axis
         ax1.plot(excess_vs_sector.index, excess_vs_sector,
-                 color='purple', linewidth=2, marker='o', markersize=4,
+                 color=COLORS['negative'], linewidth=2, marker='o', markersize=4,
                  label=f'Excess Return vs {sector_etf}')
-        ax1.axhline(y=0, color='purple', linestyle='--', linewidth=0.8, alpha=0.5)
-        ax1.set_ylabel(f"Excess Return vs {sector_etf} (%)", fontsize=10, color='purple')
-        ax1.tick_params(axis='y', labelcolor='purple')
+        ax1.axhline(y=0, color=COLORS['negative'], linestyle='--', linewidth=0.8, alpha=0.5)
+        ax1.set_ylabel(f"Excess Return vs {sector_etf} (%)", fontsize=10, color=COLORS['negative'])
+        ax1.tick_params(axis='y', labelcolor=COLORS['negative'])
         # Set symmetric y-limits so 0 is centered
         if len(excess_vs_sector) > 0:
             excess_max = max(abs(excess_vs_sector.min().item()), abs(excess_vs_sector.max().item())) * 1.1
@@ -363,11 +375,11 @@ for i, ticker in enumerate(top5):
 
         # Plot sentiment on right y-axis
         ax2.plot(ticker_sentiment_filtered['week'], ticker_sentiment_filtered['compound'],
-                 color='darkorange', linewidth=2, marker='o', markersize=4, label='Sentiment')
-        ax2.set_ylabel("Sentiment", fontsize=10, color='darkorange')
-        ax2.tick_params(axis='y', labelcolor='darkorange')
+                 color=COLORS['regression'], linewidth=2, marker='o', markersize=4, label='Sentiment')
+        ax2.set_ylabel("Sentiment", fontsize=10, color=COLORS['regression'])
+        ax2.tick_params(axis='y', labelcolor=COLORS['regression'])
         ax2.set_ylim(-1, 1)
-        ax2.axhline(y=0, color='darkorange', linestyle='--', linewidth=0.8, alpha=0.5)
+        ax2.axhline(y=0, color=COLORS['regression'], linestyle='--', linewidth=0.8, alpha=0.5)
 
         # Title and legend
         sector_label = f"{sector} ({sector_etf})" if sector else "Unknown"

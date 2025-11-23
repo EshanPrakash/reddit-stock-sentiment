@@ -28,6 +28,18 @@ os.makedirs('data', exist_ok=True)
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (12, 8)
 
+# ============================================================================
+# UNIFIED COLOR SCHEME
+# ============================================================================
+COLORS = {
+    'positive': '#2ecc71',      # Green for positive sentiment
+    'negative': '#e74c3c',      # Red for negative sentiment
+    'neutral': '#95a5a6',       # Gray for neutral
+    'returns': '#3498db',       # Blue for price/returns data
+    'sentiment': '#e67e22',     # Orange for sentiment data
+    'regression': '#2c3e50',    # Black for regression lines
+}
+
 print("=" * 70)
 print("WEEKLY LAGGED REGRESSION: TOP 5 TICKERS")
 print("Testing week-to-week predictive relationships")
@@ -377,11 +389,14 @@ print("\n" + "=" * 70)
 print("CREATING VISUALIZATIONS")
 print("=" * 70)
 
-# Color map for tickers
-colors = {'TSLA': 'red', 'NVDA': 'green', 'AMD': 'blue', 'AAPL': 'orange', 'META': 'purple'}
+# Use a single consistent color for all ticker points in scatter plots
+# (distinguishing individual tickers isn't the goal here - showing the relationship is)
 
 # 1. Scatter plots: Sentiment(t) -> Returns(t+1)
 fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+
+# RGB pattern: Blue (returns), Green (positive), Red (negative)
+model_colors = [COLORS['returns'], COLORS['positive'], COLORS['negative']]
 
 for i, (return_col, return_label) in enumerate(return_cols):
     ax = axes[i]
@@ -390,27 +405,23 @@ for i, (return_col, return_label) in enumerate(return_cols):
     y = df_clean[return_col].values
     tickers = df_clean['ticker'].values
 
-    # Color by ticker
-    for ticker in top5:
-        mask = tickers == ticker
-        ax.scatter(X[mask], y[mask], alpha=0.7, s=60,
-                   color=colors.get(ticker, 'gray'), label=ticker)
+    # Plot all points with RGB color pattern
+    ax.scatter(X, y, s=60, color=model_colors[i])
 
     # Regression line
     model = LinearRegression()
     model.fit(X.reshape(-1, 1), y)
     x_line = np.linspace(X.min(), X.max(), 100)
     y_line = model.predict(x_line.reshape(-1, 1))
-    ax.plot(x_line, y_line, color='black', linewidth=2, linestyle='--')
+    ax.plot(x_line, y_line, color=COLORS['regression'], linewidth=2, linestyle='--')
 
     result = results_sent_to_ret[i]
     ax.set_xlabel('Sentiment (week t)', fontsize=11)
     ax.set_ylabel(f'{return_label} % (week t+1)', fontsize=11)
     ax.set_title(f'Sentiment -> {return_label}\nr = {result["pearson_r"]:.3f}, p = {result["p_value"]:.3f}',
                  fontsize=11, fontweight='bold')
-    ax.legend(loc='upper right', fontsize=8)
-    ax.axhline(y=0, color='gray', linestyle='-', linewidth=0.5, alpha=0.5)
-    ax.axvline(x=0, color='gray', linestyle='-', linewidth=0.5, alpha=0.5)
+    ax.axhline(y=0, color=COLORS['neutral'], linestyle='-', linewidth=0.5, alpha=0.5)
+    ax.axvline(x=0, color=COLORS['neutral'], linestyle='-', linewidth=0.5, alpha=0.5)
     ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
@@ -421,35 +432,33 @@ plt.close()
 # 2. Scatter plots: Returns(t) -> Sentiment(t+1)
 fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
+# RGB pattern: Blue (returns), Green (positive), Red (negative)
+model_colors = [COLORS['returns'], COLORS['positive'], COLORS['negative']]
+
 for i, (return_col, return_label) in enumerate(return_cols):
     ax = axes[i]
 
     lag_col = return_col + '_lag1'
     X = df_clean[lag_col].values
     y = df_clean['sentiment'].values
-    tickers = df_clean['ticker'].values
 
-    # Color by ticker
-    for ticker in top5:
-        mask = tickers == ticker
-        ax.scatter(X[mask], y[mask], alpha=0.7, s=60,
-                   color=colors.get(ticker, 'gray'), label=ticker)
+    # Plot all points with RGB color pattern
+    ax.scatter(X, y, s=60, color=model_colors[i])
 
     # Regression line
     model = LinearRegression()
     model.fit(X.reshape(-1, 1), y)
     x_line = np.linspace(X.min(), X.max(), 100)
     y_line = model.predict(x_line.reshape(-1, 1))
-    ax.plot(x_line, y_line, color='black', linewidth=2, linestyle='--')
+    ax.plot(x_line, y_line, color=COLORS['regression'], linewidth=2, linestyle='--')
 
     result = results_ret_to_sent[i]
     ax.set_xlabel(f'{return_label} % (week t)', fontsize=11)
     ax.set_ylabel('Sentiment (week t+1)', fontsize=11)
     ax.set_title(f'{return_label} -> Sentiment\nr = {result["pearson_r"]:.3f}, p = {result["p_value"]:.3f}',
                  fontsize=11, fontweight='bold')
-    ax.legend(loc='upper right', fontsize=8)
-    ax.axhline(y=0, color='gray', linestyle='-', linewidth=0.5, alpha=0.5)
-    ax.axvline(x=0, color='gray', linestyle='-', linewidth=0.5, alpha=0.5)
+    ax.axhline(y=0, color=COLORS['neutral'], linestyle='-', linewidth=0.5, alpha=0.5)
+    ax.axvline(x=0, color=COLORS['neutral'], linestyle='-', linewidth=0.5, alpha=0.5)
     ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
@@ -458,6 +467,7 @@ print("[OK] Saved: images/figures/time_series/weekly_returns_to_sentiment.png")
 plt.close()
 
 # 3. P-value comparison bar chart
+# RGB pattern for models, solid vs hatched for direction
 fig, ax = plt.subplots(figsize=(12, 6))
 
 labels = ['Raw Returns', 'Excess vs SPY', 'Excess vs Sector']
@@ -467,16 +477,30 @@ width = 0.35
 sent_to_ret_p = [r['p_value'] for r in results_sent_to_ret]
 ret_to_sent_p = [r['p_value'] for r in results_ret_to_sent]
 
-bars1 = ax.bar(x - width/2, sent_to_ret_p, width, label='Sentiment -> Returns', color='steelblue', alpha=0.8)
-bars2 = ax.bar(x + width/2, ret_to_sent_p, width, label='Returns -> Sentiment', color='darkorange', alpha=0.8)
+# Sentiment -> Returns: solid bars with RGB colors
+bars1 = ax.bar(x - width/2, sent_to_ret_p, width,
+               color=model_colors, edgecolor='black')
+# Returns -> Sentiment: hatched bars with RGB colors
+bars2 = ax.bar(x + width/2, ret_to_sent_p, width,
+               color=model_colors, edgecolor='black', hatch='//')
 
-ax.axhline(y=0.05, color='red', linestyle='--', linewidth=2, label='alpha = 0.05')
+ax.axhline(y=0.05, color=COLORS['regression'], linestyle='--', linewidth=2, label='α = 0.05')
+
+# Custom legend with white boxes showing solid vs hatched
+from matplotlib.patches import Patch
+from matplotlib.lines import Line2D
+legend_elements = [
+    Patch(facecolor='white', edgecolor='black', label='Sentiment → Returns'),
+    Patch(facecolor='white', edgecolor='black', hatch='//', label='Returns → Sentiment'),
+    Line2D([0], [0], color=COLORS['regression'], linestyle='--', linewidth=2, label='α = 0.05')
+]
+
 ax.set_xlabel('Return Type', fontsize=12)
 ax.set_ylabel('P-Value', fontsize=12)
 ax.set_title('Weekly Lagged Regression P-Values', fontsize=14, fontweight='bold')
 ax.set_xticks(x)
 ax.set_xticklabels(labels)
-ax.legend()
+ax.legend(handles=legend_elements)
 ax.grid(True, alpha=0.3, axis='y')
 
 for bar in bars1:
