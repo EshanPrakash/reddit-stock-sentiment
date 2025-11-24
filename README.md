@@ -12,23 +12,23 @@ While prior studies have shown correlations between social media sentiment and s
 
 ### Statement of Significance
 
-This research investigates whether Reddit user sentiment about publicly traded stocks can predict subsequent stock price movements at both quarterly and weekly time scales. We find evidence that **weekly sentiment acts as a contrarian indicator** — high short-term optimism predicts weaker returns the following week. However, quarterly aggregated sentiment shows no significant predictive power.
+This research investigates whether Reddit user sentiment about publicly traded stocks can predict subsequent stock price movements at both quarterly and weekly time scales. We find evidence that weekly sentiment acts as a contrarian indicator—high short-term optimism predicts weaker returns the following week. However, quarterly aggregated sentiment shows no significant predictive power.
 
-These findings advance our understanding of how retail investor sentiment relates to market movements and have practical implications for both investors and researchers studying social media's role in financial markets.
+These findings advance our understanding of how online investor sentiment relates to market movements and have practical implications for both investors and researchers studying social media's role in financial markets.
 
 ---
 
 ## Research Question
 
-**Does Reddit user sentiment about publicly traded stocks predict subsequent stock price movements?**
+Does Reddit user sentiment about publicly traded stocks predict subsequent stock price movements?
 
 We examine this question at two time scales:
 
-1. **Quarterly Analysis:** Does sentiment expressed in Reddit discussions during Q2 2023 (April–June) correlate with stock performance in Q3 2023 (July–September)?
+1. Quarterly Analysis: Does sentiment expressed in Reddit discussions during Q2 2023 (April–June) correlate with stock performance in Q3 2023 (July–September)?
 
-2. **Weekly Analysis:** For the top 5 most-discussed stocks, does weekly sentiment predict next week's returns (or vice versa)?
+2. Weekly Analysis: For the top 5 most-discussed stocks, does weekly sentiment predict next week's returns (or vice versa)?
 
-**Hypothesis:** We hypothesize that higher average sentiment will correspond with increased stock returns, suggesting that Reddit sentiment functions as a predictor of stock price changes rather than merely reflecting concurrent market trends.
+We hypothesize that higher average sentiment will correspond with increased stock returns, suggesting that Reddit sentiment functions as a positive predictor of stock price changes rather than merely reflecting concurrent market trends.
 
 ---
 
@@ -36,25 +36,25 @@ We examine this question at two time scales:
 
 ### Data Sources
 
-**Reddit Data:**
+Reddit Data:
 - API: Pullpush.io API (archival Reddit data)
 - Subreddits: r/WallStreetBets (speculative trading), r/stocks (general analysis), r/StockMarket (macro commentary)
 - Time Period: April 1 – June 30, 2023 (Q2 2023)
-- Total Posts Collected: **Filtered based on engagement thresholds**
+- Total Posts Collected: Filtered based on engagement thresholds
 
-**Stock Data:**
+Stock Data:
 - Source: Yahoo Finance (yfinance Python library)
 - Time Period: April 1 – September 30, 2023 (Q2-Q3 2023)
 - Benchmarks: S&P 500 (SPY) and sector-specific ETFs (XLK, XLF, XLV, XLE, ITA)
 
 ### Stock Selection
 
-We analyzed **50 stocks across 5 sectors:**
-- **Technology (15 stocks):** AAPL, MSFT, GOOGL, AMZN, META, NVDA, TSLA, AMD, NFLX, INTC, CRM, ORCL, ADBE, CSCO, UBER
-- **Finance (10 stocks):** JPM, BAC, WFC, GS, MS, C, V, MA, AXP, SCHW
-- **Healthcare (10 stocks):** JNJ, UNH, PFE, ABBV, LLY, MRK, TMO, CVS, AMGN, BMY
-- **Energy (10 stocks):** XOM, CVX, COP, SLB, EOG, OXY, MPC, PSX, VLO, HAL
-- **Aerospace/Defense (5 stocks):** LMT, RTX, BA, NOC, GD
+We analyzed 50 stocks across 5 sectors:
+- Technology (15 stocks): AAPL, MSFT, GOOGL, AMZN, META, NVDA, TSLA, AMD, NFLX, INTC, CRM, ORCL, ADBE, CSCO, UBER
+- Finance (10 stocks): JPM, BAC, WFC, GS, MS, C, V, MA, AXP, SCHW
+- Healthcare (10 stocks): JNJ, UNH, PFE, ABBV, LLY, MRK, TMO, CVS, AMGN, BMY
+- Energy (10 stocks): XOM, CVX, COP, SLB, EOG, OXY, MPC, PSX, VLO, HAL
+- Aerospace/Defense (5 stocks): LMT, RTX, BA, NOC, GD
 
 ### Filtering Criteria
 
@@ -65,12 +65,12 @@ To ensure data quality, posts were included only if they:
 4. Were written in English
 5. Fell within the April 1–June 30, 2023 timeframe
 
-**Median Engagement Thresholds by Subreddit:**
+Median Engagement Thresholds by Subreddit:
 - r/WallStreetBets: 27 upvotes OR 21 comments
 - r/stocks: 11 upvotes OR 25 comments
 - r/StockMarket: 20 upvotes OR 15 comments
 
-After applying these filters and requiring stocks to have at least the median number of mentions across all stocks, **23 stocks** met the threshold for the quarterly analysis.
+After applying these filters and requiring stocks to have at least the median number of mentions across all stocks, 23 stocks met the threshold for the quarterly analysis.
 
 ---
 
@@ -78,15 +78,15 @@ After applying these filters and requiring stocks to have at least the median nu
 
 ### Sentiment Analysis
 
-We used **VADER (Valence Aware Dictionary and sEntiment Reasoner)**, a lexicon-based sentiment analysis tool specifically designed for social media text. VADER produces a compound sentiment score ranging from -1 (most negative) to +1 (most positive).
+We used VADER (Valence Aware Dictionary and sEntiment Reasoner), a lexicon-based sentiment analysis tool specifically designed for social media text. VADER produces a compound sentiment score ranging from -1 (most negative) to +1 (most positive).
 
-**Process:**
+Process:
 1. Combined post title and body text for each Reddit post
 2. Computed VADER compound sentiment score for each post
 3. Aggregated sentiment scores by stock ticker across Q2 2023
 4. Calculated mean sentiment score per ticker as the independent variable
 
-**Sentiment Classification:**
+Sentiment Classification:
 - Positive: compound score ≥ 0.05
 - Neutral: -0.05 < compound score < 0.05
 - Negative: compound score ≤ -0.05
@@ -95,9 +95,9 @@ We used **VADER (Valence Aware Dictionary and sEntiment Reasoner)**, a lexicon-b
 
 For each stock, we calculated three measures of performance:
 
-1. **Raw Return:** `(End_Price - Start_Price) / Start_Price`
-2. **Market-Adjusted Return:** `Raw_Return - SPY_Return` (controls for overall market movement)
-3. **Sector-Adjusted Return:** `Raw_Return - Sector_ETF_Return` (controls for sector-specific trends)
+1. Raw Return: `(End_Price - Start_Price) / Start_Price`
+2. Market-Adjusted Return: `Raw_Return - SPY_Return` (controls for overall market movement)
+3. Sector-Adjusted Return: `Raw_Return - Sector_ETF_Return` (controls for sector-specific trends)
 
 ### Statistical Analysis
 
@@ -105,37 +105,37 @@ For each stock, we calculated three measures of performance:
 
 We tested three regression models with increasing levels of control:
 
-**Model 1: Raw Returns**
+Model 1 (Raw Returns):
 - Dependent Variable: Q3 raw stock return
 - Independent Variable: Q2 average sentiment
 - Tests whether sentiment predicts absolute price movement
 
-**Model 2: Market-Adjusted Returns**
+Model 2 (Market-Adjusted Returns):
 - Dependent Variable: Q3 excess return vs. SPY
 - Independent Variable: Q2 average sentiment
 - Controls for overall market trends
 
-**Model 3: Sector-Adjusted Returns**
+Model 3 (Sector-Adjusted Returns):
 - Dependent Variable: Q3 excess return vs. sector benchmark
 - Independent Variable: Q2 average sentiment
 - Controls for both market and sector-specific trends
 
 #### Part 2: Weekly Time Series Analysis
 
-For the **top 5 most-discussed stocks** (NVDA, TSLA, AAPL, GOOGL, MSFT), we conducted weekly lagged regression analysis:
+For the top 5 most-discussed stocks (NVDA, TSLA, AAPL, GOOGL, MSFT), we conducted weekly lagged regression analysis:
 
-**Direction 1: Sentiment(t) → Returns(t+1)**
+Direction 1—Sentiment(t) → Returns(t+1):
 - Does this week's sentiment predict next week's returns?
 
-**Direction 2: Returns(t) → Sentiment(t+1)**
+Direction 2—Returns(t) → Sentiment(t+1):
 - Do this week's returns predict next week's sentiment?
 
 This analysis uses pooled data across the 5 tickers (~60 observations) with simple OLS regression and standard t-tests.
 
 For all analyses, we computed:
-- **Pearson correlation coefficient** (measures linear relationship)
-- **Spearman rank correlation** (non-parametric alternative)
-- **Linear regression** (R², coefficient, p-value, standard error)
+- Pearson correlation coefficient (measures linear relationship)
+- Spearman rank correlation (non-parametric alternative)
+- Linear regression (R², coefficient, p-value, standard error)
 
 Statistical significance threshold: α = 0.05
 
@@ -159,11 +159,11 @@ Statistical significance threshold: α = 0.05
 
 #### Descriptive Statistics
 
-**Final Dataset:**
-- Number of stocks analyzed: **23**
+Final Dataset:
+- Number of stocks analyzed: 23
 - Q2 2023 average sentiment range: 0.168 to 0.833
 - Q3 2023 raw return range: -11.2% to 9.1%
-- SPY (S&P 500) Q3 return: **-3.3%**
+- SPY (S&P 500) Q3 return: -3.3%
 
 #### Correlation Analysis Summary
 
@@ -180,13 +180,13 @@ Statistical significance threshold: α = 0.05
 
 #### Key Findings (Quarterly)
 
-1. **No statistically significant relationship** was found between Q2 Reddit sentiment and Q3 stock returns in any of the three models (all p-values > 0.05)
+1. No statistically significant relationship was found between Q2 Reddit sentiment and Q3 stock returns in any of the three models (all p > 0.05).
 
-2. **Weak positive correlation** exists across all models (r ≈ 0.31), but this could be due to random chance given the p-values
+2. A weak positive correlation exists across all models (r ≈ 0.31), but this could be due to random chance given the p-values.
 
-3. **Low explanatory power:** Reddit sentiment explains only ~10% of the variance in Q3 stock returns
+3. Reddit sentiment explains only ~10% of the variance in Q3 stock returns.
 
-4. **Consistent results across control levels:** The lack of significance holds whether measuring raw returns, market-adjusted returns, or sector-adjusted returns
+4. The lack of significance holds whether measuring raw returns, market-adjusted returns, or sector-adjusted returns.
 
 ### Part 2: Weekly Time Series Analysis
 
@@ -201,9 +201,9 @@ For the top 5 most-discussed stocks (NVDA, TSLA, AAPL, GOOGL, MSFT), we analyzed
 
 | Return Type | Pearson r | p-value | Significant? |
 |-------------|-----------|---------|--------------|
-| Raw Returns | **-0.274** | **0.034** | **Yes** |
-| Excess vs SPY | **-0.296** | **0.021** | **Yes** |
-| Excess vs Sector | **-0.340** | **0.008** | **Yes** |
+| Raw Returns | -0.274 | 0.034 | Yes |
+| Excess vs SPY | -0.296 | 0.021 | Yes |
+| Excess vs Sector | -0.340 | 0.008 | Yes |
 
 #### Returns(t) → Sentiment(t+1)
 
@@ -225,17 +225,17 @@ For the top 5 most-discussed stocks (NVDA, TSLA, AAPL, GOOGL, MSFT), we analyzed
 
 #### Key Findings (Weekly)
 
-1. **Weekly sentiment DOES predict next week's returns** — but in the **opposite direction** (negative correlation, p < 0.05 for all three return measures)
-2. **Weekly returns do NOT significantly predict next week's sentiment** — though there is a weak positive trend (p > 0.05)
-3. The negative predictive relationship is strongest for sector-adjusted returns (r = -0.34, p = 0.008)
+1. Weekly sentiment does predict next week's returns—but in the opposite direction (negative correlation, p < 0.05 for all three return measures).
+2. Weekly returns do not significantly predict next week's sentiment, though there is a weak positive trend (p > 0.05).
+3. The negative predictive relationship is strongest for sector-adjusted returns (r = -0.34, p = 0.008).
 
 ### Sector Analysis
 
 We examined whether the sentiment-return relationship differed by sector (Tech, Finance, Other):
 
-- **Tech stocks** displayed a slightly stronger positive trend, though still weak and not statistically significant
-- **Finance stocks** showed almost no discernible pattern
-- **Other sectors** exhibited highly dispersed behavior with no visible structure
+- Tech stocks displayed a slightly stronger positive trend, though still weak and not statistically significant.
+- Finance stocks showed almost no discernible pattern.
+- Other sectors exhibited highly dispersed behavior with no visible structure.
 
 Sector-specific regression lines confirm that no industry group shows a significant relationship.
 
@@ -245,34 +245,34 @@ Sector-specific regression lines confirm that no industry group shows a signific
 
 ### Interpretation of Results
 
-Our analysis reveals a **nuanced picture** of the relationship between Reddit sentiment and stock performance:
+Our analysis reveals a nuanced picture of the relationship between Reddit sentiment and stock performance.
 
-**Weekly Analysis (Significant Finding):**
-- Short-term sentiment spikes on Reddit act as a **contrarian indicator**: high weekly sentiment is followed by weaker returns the next week (significant negative correlation, p < 0.05 for all return measures)
-- This suggests Reddit users may exhibit **overreaction** or **excessive optimism** at the weekly level
-- Short-term price movements show a weak (non-significant) positive relationship with next week's sentiment, suggesting returns may slightly influence subsequent discussion tone
+Weekly Analysis (Significant Finding):
+- Short-term sentiment spikes on Reddit act as a contrarian indicator: high weekly sentiment is followed by weaker returns the next week (significant negative correlation, p < 0.05 for all return measures).
+- This suggests Reddit users may exhibit overreaction or excessive optimism at the weekly level.
+- Short-term price movements show a weak (non-significant) positive relationship with next week's sentiment, suggesting returns may slightly influence subsequent discussion tone.
 
-**Quarterly Analysis (Non-Significant Finding):**
-- Longer-term aggregated sentiment shows a mild but statistically insignificant positive relationship with next-quarter returns (r ≈ 0.31, p > 0.14)
-- While not significant, the direction is opposite to the weekly finding
+Quarterly Analysis (Non-Significant Finding):
+- Longer-term aggregated sentiment shows a mild but statistically insignificant positive relationship with next-quarter returns (r ≈ 0.31, p > 0.14).
+- While not significant, the direction is opposite to the weekly finding.
 
 ### Reconciling the Findings
 
 The contrasting directions between weekly (negative) and quarterly (positive) relationships suggest:
 
-1. **Weekly sentiment is noisy and prone to overreaction** — extreme short-term optimism tends to be followed by mean reversion
-2. **Quarterly aggregated sentiment may reflect underlying fundamentals** — sustained positive discussion about a company over months may capture genuine investor interest or improving fundamentals
-3. **Time horizon matters** — the same sentiment signal can have opposite implications depending on the analysis window
+1. Weekly sentiment is noisy and prone to overreaction—extreme short-term optimism tends to be followed by mean reversion.
+2. Quarterly aggregated sentiment may reflect underlying fundamentals—sustained positive discussion about a company over months may capture genuine investor interest or improving fundamentals.
+3. Time horizon matters—the same sentiment signal can have opposite implications depending on the analysis window.
 
 ### Implications for Investors
 
-**Key takeaway:** Reddit sentiment may function as a **short-term contrarian indicator** but not a reliable quarterly predictor.
+Reddit sentiment may function as a short-term contrarian indicator but not a reliable quarterly predictor.
 
 Practical applications:
-- **Contrarian trading:** Extremely positive weekly sentiment may signal near-term weakness
-- **Avoid chasing hype:** Stocks with sudden sentiment spikes may underperform in the following week
-- **Long-term perspective:** Quarterly sentiment trends are not reliable predictors, but the positive direction hints that sustained interest may matter
-- **Risk management:** Use sentiment extremes as warning signals rather than buy/sell triggers
+- Contrarian trading: Extremely positive weekly sentiment may signal near-term weakness.
+- Avoid chasing hype: Stocks with sudden sentiment spikes may underperform in the following week.
+- Long-term perspective: Quarterly sentiment trends are not reliable predictors, but the positive direction hints that sustained interest may matter.
+- Risk management: Use sentiment extremes as warning signals rather than buy/sell triggers.
 
 ---
 
@@ -307,13 +307,13 @@ Practical applications:
 
 ## Limitations
 
-1. **Sample Size:** Only 23 stocks met quarterly analysis criteria; weekly analysis limited to top 5 tickers
-2. **Time Period:** Single quarter (Q2-Q3 2023) may not be representative
-3. **Sentiment Analysis:** VADER may miss sarcasm, context, or nuanced financial language
-4. **Lag Structure:** Optimal lag unknown; effects may exist at different time scales
-5. **Confounding Variables:** Does not control for earnings, news events, or institutional activity
-6. **Selection Bias:** Focus on high-engagement posts and large-cap stocks
-7. **Causality:** Observational design cannot establish causal relationships
+1. Sample Size: Only 23 stocks met quarterly analysis criteria; weekly analysis limited to top 5 tickers.
+2. Time Period: Single quarter (Q2-Q3 2023) may not be representative.
+3. Sentiment Analysis: VADER may miss sarcasm, context, or nuanced financial language.
+4. Lag Structure: Optimal lag unknown; effects may exist at different time scales.
+5. Confounding Variables: Does not control for earnings, news events, or institutional activity.
+6. Selection Bias: Focus on high-engagement posts and large-cap stocks.
+7. Causality: Observational design cannot establish causal relationships.
 
 ---
 
@@ -321,28 +321,25 @@ Practical applications:
 
 This study investigated whether Reddit user sentiment predicts stock performance using both quarterly cross-sectional analysis (23 stocks) and weekly time series analysis (top 5 most-discussed stocks).
 
-**Key findings:**
+Key findings:
 
-1. **Weekly sentiment significantly predicts next week's returns — negatively** (r ≈ -0.27 to -0.34, p < 0.05 for all return measures)
-   - High weekly sentiment is followed by weaker returns, suggesting Reddit optimism acts as a contrarian indicator
+1. Weekly sentiment significantly predicts next week's returns—negatively (r ≈ -0.27 to -0.34, p < 0.05 for all return measures). High weekly sentiment is followed by weaker returns, suggesting Reddit optimism acts as a contrarian indicator.
 
-2. **Weekly returns do not significantly predict next week's sentiment** (r ≈ +0.17 to +0.23, p > 0.05)
-   - Though the positive direction suggests price movements may weakly influence subsequent discussion tone
+2. Weekly returns do not significantly predict next week's sentiment (r ≈ +0.17 to +0.23, p > 0.05). The positive direction suggests price movements may weakly influence subsequent discussion tone.
 
-3. **Quarterly sentiment shows a non-significant positive relationship with next-quarter returns** (r ≈ 0.31, p > 0.14)
-   - The opposite direction from weekly findings suggests aggregated sentiment may capture different information
+3. Quarterly sentiment shows a non-significant positive relationship with next-quarter returns (r ≈ 0.31, p > 0.14). The opposite direction from weekly findings suggests aggregated sentiment may capture different information.
 
-4. **Time horizon matters:** The same sentiment data produces opposite correlations at different time scales
+4. Time horizon matters: The same sentiment data produces opposite correlations at different time scales.
 
-**Interpretation:**
+Interpretation:
 
-Short-term sentiment spikes on Reddit tend to be contrarian — high weekly sentiment is followed by weaker returns the next week. However, longer-term aggregated sentiment (quarterly) shows a mild but statistically insignificant positive relationship with next-quarter returns. This suggests that while weekly Reddit sentiment is noisy and prone to overreaction, broader sustained sentiment about a company may reflect underlying investor interest or fundamentals.
+Short-term sentiment spikes on Reddit tend to be contrarian—high weekly sentiment is followed by weaker returns the next week. However, longer-term aggregated sentiment (quarterly) shows a mild but statistically insignificant positive relationship with next-quarter returns. This suggests that while weekly Reddit sentiment is noisy and prone to overreaction, broader sustained sentiment about a company may reflect underlying investor interest or fundamentals.
 
-**Implications:**
-- Reddit sentiment may serve as a **short-term contrarian indicator** for the top discussed stocks
-- Investors should be cautious about chasing stocks with sudden sentiment spikes
-- Quarterly sentiment is not a reliable standalone predictor
-- Future research should explore optimal time horizons and expand to smaller-cap stocks where retail influence may be stronger
+Implications:
+- Reddit sentiment may serve as a short-term contrarian indicator for the top discussed stocks.
+- Investors should be cautious about chasing stocks with sudden sentiment spikes.
+- Quarterly sentiment is not a reliable standalone predictor.
+- Future research should explore optimal time horizons and expand to smaller-cap stocks where retail influence may be stronger.
 
 ---
 
@@ -438,13 +435,8 @@ reddit-stock-sentiment/
 - Pullpush.io API: https://pullpush.io/ (Reddit archival data)
 - Yahoo Finance (yfinance): https://pypi.org/project/yfinance/
 
-### Tools & Libraries
-- VADER Sentiment Analysis: Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14).
-- Python Libraries: pandas, numpy, scipy, sklearn, matplotlib, seaborn
-
-### Relevant Literature
-- Bollen, J., Mao, H., & Zeng, X. (2011). Twitter mood predicts the stock market. *Journal of Computational Science*, 2(1), 1-8.
-- Sprenger, T. O., Tumasjan, A., Sandner, P. G., & Welpe, I. M. (2014). Tweets and trades: The information content of stock microblogs. *European Financial Management*, 20(5), 926-957.
-- Da, Z., Engelberg, J., & Gao, P. (2015). The sum of all FEARS investor sentiment and asset prices. *Review of Financial Studies*, 28(1), 1-32.
+### Tools and Libraries
+- Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14).
+- Python Libraries: matplotlib, numpy, pandas, requests, scikit-learn, scipy, seaborn, vaderSentiment, yfinance
 
 ---
