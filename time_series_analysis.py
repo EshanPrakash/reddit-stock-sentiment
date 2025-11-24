@@ -1,12 +1,6 @@
-# time_series_analysis.py: Weekly lagged regression analysis for TOP 5 TICKERS
-#                          Tests week-to-week relationships:
-#                          1. Does this week's sentiment predict NEXT week's returns?
-#                          2. Do this week's returns predict NEXT week's sentiment?
-#
-# Uses pooled data from top 5 tickers (~13 weeks x 5 tickers = ~60 observations)
-# Simple OLS regression with standard errors based on N-2 degrees of freedom.
-#
-# Requires filter_posts.py, sentiment_analysis.py to be run first
+# time_series_analysis.py: weekly lagged regression analysis for top 5 tickers, tests whether
+#                          sentiment predicts next week's returns and vice versa
+# requires filter_posts.py and sentiment_analysis.py to be run first
 
 import json
 import pandas as pd
@@ -19,73 +13,63 @@ from sklearn.linear_model import LinearRegression
 import yfinance as yf
 import os
 
-# Creating directories if they don't exist
+# create directories if they don't exist
 os.makedirs('images/figures/time_series', exist_ok=True)
 os.makedirs('images/diagnostics/time_series', exist_ok=True)
 os.makedirs('data', exist_ok=True)
 
-# Set style for plots
+# plot styling
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (12, 8)
 
-# ============================================================================
-# UNIFIED COLOR SCHEME
-# ============================================================================
+# color scheme for visualizations
 COLORS = {
-    'positive': '#2ecc71',      # Green for positive sentiment
-    'negative': '#e74c3c',      # Red for negative sentiment
-    'neutral': '#95a5a6',       # Gray for neutral
-    'returns': '#3498db',       # Blue for price/returns data
-    'sentiment': '#e67e22',     # Orange for sentiment data
-    'regression': '#2c3e50',    # Black for regression lines
+    'positive': '#2ecc71',
+    'negative': '#e74c3c',
+    'neutral': '#95a5a6',
+    'returns': '#3498db',
+    'sentiment': '#e67e22',
+    'regression': '#2c3e50',
 }
 
-print("=" * 70)
-print("WEEKLY LAGGED REGRESSION: TOP 5 TICKERS")
+print("Weekly lagged regression: top 5 tickers")
 print("Testing week-to-week predictive relationships")
-print("=" * 70)
 
-# ============================================================================
-# LOAD DATA
-# ============================================================================
+# load data
 
 input_file = "./data/reddit_posts_q2_2023_filtered.json"
 print(f"\nLoading filtered posts from {input_file}...")
 try:
     with open(input_file, 'r', encoding='utf-8') as f:
         posts = json.load(f)
-    print(f"[OK] Loaded {len(posts):,} posts")
+    print(f"Loaded {len(posts):,} posts")
 except FileNotFoundError:
-    print(f"[ERROR] {input_file} not found!")
+    print(f"Error: {input_file} not found!")
     exit(1)
 
-# Get top 5 most mentioned tickers
+# get top 5 most mentioned tickers
 mention_counts = {}
 for post in posts:
     for ticker in post.get("mentioned_tickers", []):
         mention_counts[ticker] = mention_counts.get(ticker, 0) + 1
 
 top5 = sorted(mention_counts, key=mention_counts.get, reverse=True)[:5]
-print(f"[OK] Top 5 tickers: {top5}")
+print(f"Top 5 tickers: {top5}")
 
-# Load sentiment data
+# load sentiment data
 sentiment_file = "./data/reddit_posts_q2_2023_with_sentiment.json"
 print(f"Loading sentiment data from {sentiment_file}...")
 try:
     with open(sentiment_file, 'r', encoding='utf-8') as f:
         sentiment_posts = json.load(f)
-    print(f"[OK] Loaded {len(sentiment_posts):,} posts with sentiment")
+    print(f"Loaded {len(sentiment_posts):,} posts with sentiment")
 except FileNotFoundError:
-    print(f"[ERROR] {sentiment_file} not found!")
+    print(f"Error: {sentiment_file} not found!")
     exit(1)
 
-# ============================================================================
-# BUILD WEEKLY SENTIMENT DATA FOR TOP 5
-# ============================================================================
+# build weekly sentiment data for top 5
 
-print("\n" + "=" * 70)
-print("BUILDING WEEKLY SENTIMENT DATA")
-print("=" * 70)
+print("\nBuilding weekly sentiment data")
 
 sentiment_records = []
 for post in sentiment_posts:
@@ -102,43 +86,39 @@ for post in sentiment_posts:
 sentiment_df = pd.DataFrame(sentiment_records)
 sentiment_df = sentiment_df.set_index('date')
 
-# Aggregate by week and ticker (using W-MON for consistent week boundaries)
+# aggregate by week and ticker
 weekly_sentiment = sentiment_df.groupby('ticker').resample('W-MON')['compound'].mean().reset_index()
 weekly_sentiment.columns = ['ticker', 'week', 'sentiment']
 weekly_sentiment = weekly_sentiment.dropna()
 
-print(f"[OK] Weekly sentiment observations: {len(weekly_sentiment)}")
+print(f"Weekly sentiment observations: {len(weekly_sentiment)}")
 for ticker in top5:
     n = len(weekly_sentiment[weekly_sentiment['ticker'] == ticker])
-    print(f"    {ticker}: {n} weeks")
+    print(f"  {ticker}: {n} weeks")
 
-# ============================================================================
-# FETCH WEEKLY PRICE DATA
-# ============================================================================
+# fetch weekly price data
 
-print("\n" + "=" * 70)
-print("FETCHING WEEKLY PRICE DATA")
-print("=" * 70)
+print("\nFetching weekly price data")
 
 start_date = "2023-04-01"
 end_date = "2023-06-30"
 
-# Fetch daily data and resample to weekly
+# fetch daily data and resample to weekly
 print("Fetching price data...")
 price_data = yf.download(top5, start=start_date, end=end_date, progress=False)
 
-# Handle MultiIndex columns
+# handle MultiIndex columns
 if isinstance(price_data.columns, pd.MultiIndex):
     df_close = price_data['Close']
 else:
     df_close = price_data[['Close']]
     df_close.columns = top5
 
-# Resample to weekly (W-MON) and compute percent change
+# resample to weekly and compute percent change
 price_weekly = df_close.resample('W-MON').last()
 price_pct_change = price_weekly.pct_change() * 100
 
-# Fetch SPY for excess returns
+# fetch SPY for excess returns
 print("Fetching SPY benchmark...")
 spy_data = yf.download('SPY', start=start_date, end=end_date, progress=False)
 if isinstance(spy_data.columns, pd.MultiIndex):
@@ -148,7 +128,7 @@ else:
 spy_weekly = spy_close.resample('W-MON').last()
 spy_pct_change = spy_weekly.pct_change() * 100
 
-# Fetch XLK (all top 5 are tech)
+# fetch XLK sector ETF
 print("Fetching XLK (Tech sector ETF)...")
 xlk_data = yf.download('XLK', start=start_date, end=end_date, progress=False)
 if isinstance(xlk_data.columns, pd.MultiIndex):
@@ -158,15 +138,11 @@ else:
 xlk_weekly = xlk_close.resample('W-MON').last()
 xlk_pct_change = xlk_weekly.pct_change() * 100
 
-print("[OK] Price data fetched")
+print("Price data fetched")
 
-# ============================================================================
-# BUILD PANEL DATASET WITH LAGGED VARIABLES
-# ============================================================================
+# build panel dataset with lagged variables
 
-print("\n" + "=" * 70)
-print("BUILDING PANEL DATASET WITH LAGS")
-print("=" * 70)
+print("\nBuilding panel dataset with lags")
 
 panel_data = []
 
@@ -182,7 +158,7 @@ for ticker in top5:
         week = row['week']
         sentiment = row['sentiment']
 
-        # Get returns for this week
+        # get returns for this week
         if week in ticker_pct.index:
             raw_return = ticker_pct.loc[week]
             if isinstance(raw_return, pd.Series):
@@ -215,36 +191,32 @@ for ticker in top5:
 df = pd.DataFrame(panel_data)
 df = df.sort_values(['ticker', 'week']).reset_index(drop=True)
 
-# Create lagged variables (within each ticker)
+# create lagged variables within each ticker
 df['sentiment_lag1'] = df.groupby('ticker')['sentiment'].shift(1)
 df['return_raw_lag1'] = df.groupby('ticker')['return_raw'].shift(1)
 df['return_excess_spy_lag1'] = df.groupby('ticker')['return_excess_spy'].shift(1)
 df['return_excess_sector_lag1'] = df.groupby('ticker')['return_excess_sector'].shift(1)
 
-# Drop rows with NaN (first week of each ticker has no lag)
+# drop rows with NaN
 df_clean = df.dropna()
 
-print(f"[OK] Panel dataset: {len(df_clean)} observations (5 tickers x ~12 weeks)")
+print(f"Panel dataset: {len(df_clean)} observations (5 tickers x ~12 weeks)")
 
-# Save the panel data
+# save the panel data
 df_clean.to_csv('./data/weekly_panel_top5.csv', index=False)
-print("[OK] Saved: data/weekly_panel_top5.csv")
+print("Saved: data/weekly_panel_top5.csv")
 
-# ============================================================================
-# SIMPLE OLS REGRESSION
-# ============================================================================
+# simple OLS regression
 
 def run_regression(X, y, label):
-    """
-    Simple OLS regression with standard t-test (df = n-2).
-    """
+    """simple OLS regression with standard t-test"""
     n = len(y)
 
-    # Pearson correlation
+    # pearson correlation
     pearson_r, pearson_p = stats.pearsonr(X, y)
     spearman_r, spearman_p = stats.spearmanr(X, y)
 
-    # Fit OLS
+    # fit OLS
     model = LinearRegression()
     model.fit(X.reshape(-1, 1), y)
 
@@ -253,12 +225,12 @@ def run_regression(X, y, label):
     y_pred = model.predict(X.reshape(-1, 1))
     residuals = y - y_pred
 
-    # R-squared
+    # r-squared
     ss_res = np.sum(residuals**2)
     ss_tot = np.sum((y - y.mean())**2)
     r_squared = 1 - (ss_res / ss_tot)
 
-    # Standard error of coefficient
+    # standard error of coefficient
     mse = ss_res / (n - 2)
     x_ss = np.sum((X - X.mean())**2)
     se = np.sqrt(mse / x_ss)
@@ -282,10 +254,8 @@ def run_regression(X, y, label):
         'r_squared': r_squared
     }
 
-print("\n" + "=" * 70)
-print("LAGGED REGRESSIONS: SENTIMENT(t) -> RETURNS(t+1)")
-print("Does this week's sentiment predict NEXT week's returns?")
-print("=" * 70)
+print("\nLagged regressions: sentiment(t) -> returns(t+1)")
+print("Does this week's sentiment predict next week's returns?")
 
 results_sent_to_ret = []
 
@@ -310,14 +280,12 @@ for return_col, return_label in return_cols:
     print(f"  R2 = {result['r_squared']:.4f}")
 
     if result['p_value'] < 0.05:
-        print(f"  --> SIGNIFICANT at alpha = 0.05")
+        print(f"  SIGNIFICANT at alpha = 0.05")
     else:
-        print(f"  --> NOT significant at alpha = 0.05")
+        print(f"  NOT significant at alpha = 0.05")
 
-print("\n" + "=" * 70)
-print("LAGGED REGRESSIONS: RETURNS(t) -> SENTIMENT(t+1)")
-print("Do this week's returns predict NEXT week's sentiment?")
-print("=" * 70)
+print("\nLagged regressions: returns(t) -> sentiment(t+1)")
+print("Do this week's returns predict next week's sentiment?")
 
 results_ret_to_sent = []
 
@@ -337,13 +305,11 @@ for return_col, return_label in return_cols:
     print(f"  R2 = {result['r_squared']:.4f}")
 
     if result['p_value'] < 0.05:
-        print(f"  --> SIGNIFICANT at alpha = 0.05")
+        print(f"  SIGNIFICANT at alpha = 0.05")
     else:
-        print(f"  --> NOT significant at alpha = 0.05")
+        print(f"  NOT significant at alpha = 0.05")
 
-# ============================================================================
-# SAVE RESULTS
-# ============================================================================
+# save results
 
 all_results = []
 for r in results_sent_to_ret:
@@ -379,23 +345,15 @@ for r in results_ret_to_sent:
 
 results_df = pd.DataFrame(all_results)
 results_df.to_csv('./data/weekly_lagged_regression_results.csv', index=False)
-print("\n[OK] Saved: data/weekly_lagged_regression_results.csv")
+print("\nSaved: data/weekly_lagged_regression_results.csv")
 
-# ============================================================================
-# VISUALIZATIONS
-# ============================================================================
+# visualizations
 
-print("\n" + "=" * 70)
-print("CREATING VISUALIZATIONS")
-print("=" * 70)
+print("\nCreating visualizations")
 
-# Use a single consistent color for all ticker points in scatter plots
-# (distinguishing individual tickers isn't the goal here - showing the relationship is)
-
-# 1. Scatter plots: Sentiment(t) -> Returns(t+1)
+# scatter plots: sentiment(t) -> returns(t+1)
 fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
-# RGB pattern: Blue (returns), Green (positive), Red (negative)
 model_colors = [COLORS['returns'], COLORS['positive'], COLORS['negative']]
 
 for i, (return_col, return_label) in enumerate(return_cols):
@@ -405,10 +363,10 @@ for i, (return_col, return_label) in enumerate(return_cols):
     y = df_clean[return_col].values
     tickers = df_clean['ticker'].values
 
-    # Plot all points with RGB color pattern
+    # plot points
     ax.scatter(X, y, s=60, color=model_colors[i])
 
-    # Regression line
+    # regression line
     model = LinearRegression()
     model.fit(X.reshape(-1, 1), y)
     x_line = np.linspace(X.min(), X.max(), 100)
@@ -426,13 +384,12 @@ for i, (return_col, return_label) in enumerate(return_cols):
 
 plt.tight_layout()
 plt.savefig('./images/figures/time_series/weekly_sentiment_to_returns.png', dpi=300, bbox_inches='tight')
-print("[OK] Saved: images/figures/time_series/weekly_sentiment_to_returns.png")
+print("Saved: images/figures/time_series/weekly_sentiment_to_returns.png")
 plt.close()
 
-# 2. Scatter plots: Returns(t) -> Sentiment(t+1)
+# scatter plots: returns(t) -> sentiment(t+1)
 fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
-# RGB pattern: Blue (returns), Green (positive), Red (negative)
 model_colors = [COLORS['returns'], COLORS['positive'], COLORS['negative']]
 
 for i, (return_col, return_label) in enumerate(return_cols):
@@ -442,10 +399,10 @@ for i, (return_col, return_label) in enumerate(return_cols):
     X = df_clean[lag_col].values
     y = df_clean['sentiment'].values
 
-    # Plot all points with RGB color pattern
+    # plot points
     ax.scatter(X, y, s=60, color=model_colors[i])
 
-    # Regression line
+    # regression line
     model = LinearRegression()
     model.fit(X.reshape(-1, 1), y)
     x_line = np.linspace(X.min(), X.max(), 100)
@@ -463,11 +420,10 @@ for i, (return_col, return_label) in enumerate(return_cols):
 
 plt.tight_layout()
 plt.savefig('./images/figures/time_series/weekly_returns_to_sentiment.png', dpi=300, bbox_inches='tight')
-print("[OK] Saved: images/figures/time_series/weekly_returns_to_sentiment.png")
+print("Saved: images/figures/time_series/weekly_returns_to_sentiment.png")
 plt.close()
 
-# 3. P-value comparison bar chart
-# RGB pattern for models, solid vs hatched for direction
+# p-value comparison bar chart
 fig, ax = plt.subplots(figsize=(12, 6))
 
 labels = ['Raw Returns', 'Excess vs SPY', 'Excess vs Sector']
@@ -477,16 +433,16 @@ width = 0.35
 sent_to_ret_p = [r['p_value'] for r in results_sent_to_ret]
 ret_to_sent_p = [r['p_value'] for r in results_ret_to_sent]
 
-# Sentiment -> Returns: solid bars with RGB colors
+# sentiment -> returns: solid bars
 bars1 = ax.bar(x - width/2, sent_to_ret_p, width,
                color=model_colors, edgecolor='black')
-# Returns -> Sentiment: hatched bars with RGB colors
+# returns -> sentiment: hatched bars
 bars2 = ax.bar(x + width/2, ret_to_sent_p, width,
                color=model_colors, edgecolor='black', hatch='//')
 
 ax.axhline(y=0.05, color=COLORS['regression'], linestyle='--', linewidth=2, label='α = 0.05')
 
-# Custom legend with white boxes showing solid vs hatched
+# custom legend
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 legend_elements = [
@@ -514,24 +470,20 @@ for bar in bars2:
 
 plt.tight_layout()
 plt.savefig('./images/diagnostics/time_series/weekly_pvalue_comparison.png', dpi=300, bbox_inches='tight')
-print("[OK] Saved: images/diagnostics/time_series/weekly_pvalue_comparison.png")
+print("Saved: images/diagnostics/time_series/weekly_pvalue_comparison.png")
 plt.close()
 
-# ============================================================================
-# SUMMARY
-# ============================================================================
+# summary
 
-print("\n" + "=" * 70)
-print("SUMMARY OF FINDINGS")
-print("=" * 70)
+print("\nSummary of findings")
 
-print("\n1. SENTIMENT(t) -> RETURNS(t+1)")
+print("\n1. Sentiment(t) -> Returns(t+1)")
 print("   Does this week's sentiment predict next week's returns?")
 for r in results_sent_to_ret:
     sig = "SIGNIFICANT" if r['p_value'] < 0.05 else "NOT significant"
     print(f"   {r['label']}: r = {r['pearson_r']:.3f}, p = {r['p_value']:.3f} -> {sig}")
 
-print("\n2. RETURNS(t) -> SENTIMENT(t+1)")
+print("\n2. Returns(t) -> Sentiment(t+1)")
 print("   Do this week's returns predict next week's sentiment?")
 for r in results_ret_to_sent:
     sig = "SIGNIFICANT" if r['p_value'] < 0.05 else "NOT significant"
@@ -540,18 +492,14 @@ for r in results_ret_to_sent:
 any_sig_sent = any(r['p_value'] < 0.05 for r in results_sent_to_ret)
 any_sig_ret = any(r['p_value'] < 0.05 for r in results_ret_to_sent)
 
-print("\n" + "=" * 70)
-print("CONCLUSION")
-print("=" * 70)
+print("\nConclusion")
 
 if any_sig_sent:
-    print("\n[!] Weekly sentiment DOES predict next week's returns")
+    print("\nWeekly sentiment DOES predict next week's returns")
 else:
-    print("\n[X] Weekly sentiment does NOT predict next week's returns")
+    print("\nWeekly sentiment does NOT predict next week's returns")
 
 if any_sig_ret:
-    print("[!] Weekly returns DO predict next week's sentiment")
+    print("Weekly returns DO predict next week's sentiment")
 else:
-    print("[X] Weekly returns do NOT predict next week's sentiment")
-
-print("=" * 70)
+    print("Weekly returns do NOT predict next week's sentiment")
