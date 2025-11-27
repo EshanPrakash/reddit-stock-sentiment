@@ -469,7 +469,7 @@ reddit-stock-sentiment/
 
 ### Tools and Libraries
 - Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14).
-- Soleimani, A. (2023). financial-roberta-large-sentiment: A RoBERTa model fine-tuned on financial text for sentiment analysis. HuggingFace Model Hub. https://huggingface.co/soleimanian/financial-roberta-large-sentiment
+- Soleimani, A. financial-roberta-large-sentiment: A RoBERTa model fine-tuned on financial text for sentiment analysis. Available at: https://huggingface.co/soleimanian/financial-roberta-large-sentiment
 - Python Libraries: matplotlib, numpy, pandas, requests, scikit-learn, scipy, seaborn, vaderSentiment, yfinance, transformers, torch, safetensors
 
 ---
