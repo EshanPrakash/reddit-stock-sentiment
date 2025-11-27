@@ -174,7 +174,7 @@ Final Dataset:
 | Model 3: vs Sector | 0.3153 | 0.1428 | 0.0994 | 9.94% |
 
 <p align="center">
-  <img src="images/figures/hypothesis/three_models_comparison.png" alt="Three Models Comparison" width="100%">
+  <img src="images/figures/hypothesis_outlier_removed/three_models_comparison.png" alt="Three Models Comparison" width="100%">
   <br><em>Quarterly regression analysis across all three models showing weak positive but non-significant relationships</em>
 </p>
 
@@ -201,33 +201,33 @@ For the top 5 most-discussed stocks (NVDA, TSLA, AAPL, GOOGL, MSFT), we analyzed
 
 | Return Type | Pearson r | p-value | Significant? |
 |-------------|-----------|---------|--------------|
-| Raw Returns | -0.274 | 0.034 | Yes |
-| Excess vs SPY | -0.296 | 0.021 | Yes |
-| Excess vs Sector | -0.340 | 0.008 | Yes |
+| Raw Returns | -0.256 | 0.053 | No |
+| Excess vs SPY | -0.287 | 0.029 | Yes |
+| Excess vs Sector | -0.334 | 0.010 | Yes |
 
 #### Returns(t) → Sentiment(t+1)
 
 | Return Type | Pearson r | p-value | Significant? |
 |-------------|-----------|---------|--------------|
-| Raw Returns | +0.235 | 0.071 | No |
-| Excess vs SPY | +0.227 | 0.082 | No |
-| Excess vs Sector | +0.165 | 0.207 | No |
+| Raw Returns | +0.258 | 0.051 | No |
+| Excess vs SPY | +0.254 | 0.055 | No |
+| Excess vs Sector | +0.172 | 0.196 | No |
 
 <p align="center">
-  <img src="images/figures/time_series/weekly_sentiment_to_returns.png" alt="Weekly Sentiment to Returns" width="100%">
+  <img src="images/figures/time_series_outlier_removed/weekly_sentiment_to_returns.png" alt="Weekly Sentiment to Returns" width="100%">
   <br><em>Lagged regression: This week's sentiment predicting next week's returns (significant negative relationship)</em>
 </p>
 
 <p align="center">
-  <img src="images/diagnostics/time_series/weekly_pvalue_comparison.png" alt="P-Value Comparison" width="70%">
-  <br><em>P-value comparison showing significant results for Sentiment→Returns (all below α=0.05) vs non-significant Returns→Sentiment</em>
+  <img src="images/diagnostics/time_series_outlier_removed/weekly_pvalue_comparison.png" alt="P-Value Comparison" width="70%">
+  <br><em>P-value comparison showing significant results for Sentiment→Returns (2/3 models below α=0.05) vs non-significant Returns→Sentiment</em>
 </p>
 
 #### Key Findings (Weekly)
 
-1. Weekly sentiment does predict next week's returns—but in the opposite direction (negative correlation, p < 0.05 for all three return measures).
+1. Weekly sentiment predicts next week's returns in the opposite direction (negative correlation, p < 0.05 for market-adjusted and sector-adjusted returns).
 2. Weekly returns do not significantly predict next week's sentiment, though there is a weak positive trend (p > 0.05).
-3. The negative predictive relationship is strongest for sector-adjusted returns (r = -0.34, p = 0.008).
+3. The negative predictive relationship is strongest for sector-adjusted returns (r = -0.334, p = 0.010).
 
 ### Sector Analysis
 
@@ -248,7 +248,7 @@ Sector-specific regression lines confirm that no industry group shows a signific
 Our analysis reveals a nuanced picture of the relationship between Reddit sentiment and stock performance.
 
 Weekly Analysis (Significant Finding):
-- Short-term sentiment spikes on Reddit act as a contrarian indicator: high weekly sentiment is followed by weaker returns the next week (significant negative correlation, p < 0.05 for all return measures).
+- Short-term sentiment spikes on Reddit act as a contrarian indicator: high weekly sentiment is followed by weaker returns the next week (significant negative correlation, p < 0.05 for market-adjusted and sector-adjusted returns).
 - This suggests Reddit users may exhibit overreaction or excessive optimism at the weekly level.
 - Short-term price movements show a weak (non-significant) positive relationship with next week's sentiment, suggesting returns may slightly influence subsequent discussion tone.
 
@@ -286,22 +286,47 @@ Practical applications:
 - `sentiment_heatmap.png` - Heatmap of sentiment metrics
 
 ### Hypothesis Testing Visualizations
-- `three_models_comparison.png` - Side-by-side regression plots for all three models
-- `sector_highlight_scatter.png` - Sector-highlighted scatterplot
-- `sector_trendlines.png` - Sector-specific regression lines
+- `hypothesis_outlier_removed/three_models_comparison.png` - Side-by-side regression plots for all three models (outliers removed)
+- `hypothesis_outlier_removed/sector_highlight_scatter.png` - Sector-highlighted scatterplot (outliers removed)
+- `hypothesis_outlier_removed/sector_trendlines.png` - Sector-specific regression lines (outliers removed)
 
 ### Time Series Visualizations
 - `top_5_price_sentiment_overlay.png` - Weekly price change vs sentiment (dual-axis)
 - `top_5_excess_spy_sentiment_overlay.png` - Excess return vs SPY + sentiment
 - `top_5_excess_sector_sentiment_overlay.png` - Excess return vs sector + sentiment
-- `weekly_sentiment_to_returns.png` - Lagged regression: sentiment → returns
-- `weekly_returns_to_sentiment.png` - Lagged regression: returns → sentiment
+- `time_series_outlier_removed/weekly_sentiment_to_returns.png` - Lagged regression: sentiment → returns (outliers removed)
+- `time_series_outlier_removed/weekly_returns_to_sentiment.png` - Lagged regression: returns → sentiment (outliers removed)
 
 ### Diagnostic Visualizations
-- `residual_plots.png` - Regression residual diagnostics
-- `r_squared_comparison.png` - Model explanatory power comparison
-- `correlation_comparison.png` - Pearson vs Spearman correlations
-- `weekly_pvalue_comparison.png` - Weekly lagged regression p-values
+- `model_outlier_removed/residual_plots.png` - Regression residual diagnostics (outliers removed)
+- `model_outlier_removed/r_squared_comparison.png` - Model explanatory power comparison (outliers removed)
+- `model_outlier_removed/correlation_comparison.png` - Pearson vs Spearman correlations (outliers removed)
+- `time_series_outlier_removed/weekly_pvalue_comparison.png` - Weekly lagged regression p-values (outliers removed)
+
+### Robustness Check Visualizations
+- `comparison/distribution_comparison.png` - VADER vs RoBERTa sentiment distributions
+
+---
+
+## Robustness Checks
+
+### Sentiment Model Validation
+
+We compared VADER scores with a financial-domain RoBERTa model (soleimanian/financial-roberta-large-sentiment) to assess sensitivity to sentiment analysis method choice.
+
+**Results**: VADER and RoBERTa show weak agreement (Pearson r = 0.24, label agreement = 42.5%), indicating sentiment methodology significantly affects measurements. This suggests our findings may be specific to VADER's approach.
+
+### Outlier Sensitivity Analysis
+
+We re-ran all OLS regressions after removing outliers using the z-score method (threshold = 3.0) to test whether extreme observations drive results.
+
+**Results**:
+- Quarterly analysis: Removed 0 observations (no outliers detected). Results remain unchanged.
+- Weekly analysis: Removed 2 observations from 60 total (3.3%). Main findings persist—weekly sentiment still significantly predicts returns for market-adjusted (p = 0.029) and sector-adjusted (p = 0.010) returns, though raw returns became marginally non-significant (p = 0.053).
+
+The core conclusions are robust to outlier removal. All reported results use outlier-removed data.
+
+Scripts: `statistical_analysis_outlier_removed.py`, `time_series_analysis_outlier_removed.py`
 
 ---
 
@@ -309,7 +334,7 @@ Practical applications:
 
 1. Sample Size: Only 23 stocks met quarterly analysis criteria; weekly analysis limited to top 5 tickers.
 2. Time Period: Single quarter (Q2-Q3 2023) may not be representative.
-3. Sentiment Analysis: VADER may miss sarcasm, context, or nuanced financial language.
+3. Sentiment Analysis: VADER and RoBERTa produce substantially different sentiment scores (r = 0.24, label agreement = 42.5%), indicating results are sensitive to sentiment model choice and may not generalize across methods.
 4. Lag Structure: Optimal lag unknown; effects may exist at different time scales.
 5. Confounding Variables: Does not control for earnings, news events, or institutional activity.
 6. Selection Bias: Focus on high-engagement posts and large-cap stocks.
@@ -323,9 +348,9 @@ This study investigated whether Reddit user sentiment predicts stock performance
 
 Key findings:
 
-1. Weekly sentiment significantly predicts next week's returns—negatively (r ≈ -0.27 to -0.34, p < 0.05 for all return measures). High weekly sentiment is followed by weaker returns, suggesting Reddit optimism acts as a contrarian indicator.
+1. Weekly sentiment significantly predicts next week's returns—negatively (r ≈ -0.26 to -0.33, p < 0.05 for market-adjusted and sector-adjusted returns). High weekly sentiment is followed by weaker returns, suggesting Reddit optimism acts as a contrarian indicator.
 
-2. Weekly returns do not significantly predict next week's sentiment (r ≈ +0.17 to +0.23, p > 0.05). The positive direction suggests price movements may weakly influence subsequent discussion tone.
+2. Weekly returns do not significantly predict next week's sentiment (r ≈ +0.17 to +0.26, p > 0.05). The positive direction suggests price movements may weakly influence subsequent discussion tone.
 
 3. Quarterly sentiment shows a non-significant positive relationship with next-quarter returns (r ≈ 0.31, p > 0.14). The opposite direction from weekly findings suggests aggregated sentiment may capture different information.
 
@@ -349,16 +374,17 @@ Implications:
 reddit-stock-sentiment/
 │
 ├── data/
-│   ├── reddit_posts_q2_2023_full.json           # Raw Reddit posts
-│   ├── reddit_posts_q2_2023_filtered.json       # Filtered posts
-│   ├── reddit_posts_q2_2023_with_sentiment.json # Posts with VADER scores
-│   ├── q2_2023_sentiment_by_ticker.json/.csv    # Aggregated Q2 sentiment
-│   ├── q3_2023_with_benchmarks.json/.csv        # Q3 stock returns with benchmarks
-│   ├── top5_price_history_q2_q3_2023.csv        # Price history for top 5 tickers
-│   ├── merged_sentiment_returns.csv             # Final merged dataset
-│   ├── regression_summary.csv                   # Quarterly regression results
-│   ├── weekly_panel_top5.csv                    # Weekly panel data for top 5
-│   └── weekly_lagged_regression_results.csv     # Weekly regression results
+│   ├── reddit_posts_q2_2023_full.json                 # Raw Reddit posts
+│   ├── reddit_posts_q2_2023_filtered.json             # Filtered posts
+│   ├── reddit_posts_q2_2023_with_sentiment.json       # Posts with VADER scores
+│   ├── q2_2023_sentiment_by_ticker.json/.csv          # Aggregated Q2 sentiment
+│   ├── q3_2023_with_benchmarks.json/.csv              # Q3 stock returns with benchmarks
+│   ├── top5_price_history_q2_q3_2023.csv              # Price history for top 5 tickers
+│   ├── merged_sentiment_returns_outlier_removed.csv   # Merged dataset (outliers removed)
+│   ├── regression_summary_outlier_removed.csv         # Quarterly regression results (outliers removed)
+│   ├── weekly_panel_top5_outlier_removed.csv          # Weekly panel data (outliers removed)
+│   ├── weekly_lagged_regression_results_outlier_removed.csv  # Weekly regression results (outliers removed)
+│   └── vader_roberta_comparison.csv                   # VADER vs RoBERTa comparison
 │
 ├── images/
 │   ├── figures/
@@ -368,32 +394,36 @@ reddit-stock-sentiment/
 │   │   │   ├── sentiment_distribution.png
 │   │   │   ├── sentiment_heatmap.png
 │   │   │   └── top_5_discussed.png
-│   │   ├── hypothesis/
+│   │   ├── hypothesis_outlier_removed/
 │   │   │   ├── three_models_comparison.png
 │   │   │   ├── sector_highlight_scatter.png
 │   │   │   └── sector_trendlines.png
-│   │   └── time_series/
-│   │       ├── top_5_price_sentiment_overlay.png
-│   │       ├── top_5_excess_spy_sentiment_overlay.png
-│   │       ├── top_5_excess_sector_sentiment_overlay.png
-│   │       ├── weekly_sentiment_to_returns.png
-│   │       └── weekly_returns_to_sentiment.png
+│   │   ├── time_series/
+│   │   │   ├── top_5_price_sentiment_overlay.png
+│   │   │   ├── top_5_excess_spy_sentiment_overlay.png
+│   │   │   └── top_5_excess_sector_sentiment_overlay.png
+│   │   ├── time_series_outlier_removed/
+│   │   │   ├── weekly_sentiment_to_returns.png
+│   │   │   └── weekly_returns_to_sentiment.png
+│   │   └── comparison/
+│   │       └── distribution_comparison.png
 │   └── diagnostics/
-│       ├── model/
+│       ├── model_outlier_removed/
 │       │   ├── residual_plots.png
 │       │   ├── r_squared_comparison.png
 │       │   └── correlation_comparison.png
-│       └── time_series/
+│       └── time_series_outlier_removed/
 │           └── weekly_pvalue_comparison.png
 │
-├── collect_pullpush.py            # Step 1: Collect Reddit posts
-├── filter_posts.py                # Step 2: Filter for stock mentions
-├── sentiment_analysis.py          # Step 3: VADER sentiment analysis
-├── aggregate_sentiment.py         # Step 4: Aggregate sentiment by ticker + visualizations
-├── yfinance_fetch_q3.py           # Step 5: Fetch Q3 stock returns with benchmarks
-├── statistical_analysis.py        # Step 6: Quarterly cross-sectional regression analysis
-├── top_5_time_series.py           # Step 7: Price/sentiment overlay visualizations
-├── time_series_analysis.py        # Step 8: Weekly lagged regression analysis
+├── collect_pullpush.py                       # Step 1: Collect Reddit posts
+├── filter_posts.py                           # Step 2: Filter for stock mentions
+├── sentiment_analysis.py                     # Step 3: VADER sentiment analysis
+├── aggregate_sentiment.py                    # Step 4: Aggregate sentiment by ticker + visualizations
+├── yfinance_fetch_q3.py                      # Step 5: Fetch Q3 stock returns with benchmarks
+├── statistical_analysis_outlier_removed.py   # Step 6: Quarterly regression (outliers removed)
+├── top_5_time_series.py                      # Step 7: Price/sentiment overlay visualizations
+├── time_series_analysis_outlier_removed.py   # Step 8: Weekly lagged regression (outliers removed)
+├── sentiment_comparison_roberta.py           # Robustness: VADER vs RoBERTa comparison
 │
 ├── requirements.txt
 ├── LICENSE
@@ -404,26 +434,28 @@ reddit-stock-sentiment/
 
 1. **Install dependencies:**
    ```bash
-   pip install requests vaderSentiment yfinance pandas numpy scipy scikit-learn matplotlib seaborn
+   pip install -r requirements.txt
    ```
 
 2. **Run scripts in order:**
    ```bash
-   python collect_pullpush.py          # Collect Reddit data
-   python filter_posts.py              # Filter for stock mentions
-   python sentiment_analysis.py        # Compute sentiment scores
-   python aggregate_sentiment.py       # Aggregate by ticker + create sentiment visualizations
-   python yfinance_fetch_q3.py         # Fetch stock returns with benchmarks
-   python statistical_analysis.py      # Run quarterly cross-sectional analysis
-   python top_5_time_series.py         # Generate price + sentiment overlays
-   python time_series_analysis.py      # Run weekly lagged regression analysis
+   python collect_pullpush.py                       # Collect Reddit data
+   python filter_posts.py                           # Filter for stock mentions
+   python sentiment_analysis.py                     # Compute sentiment scores
+   python aggregate_sentiment.py                    # Aggregate by ticker + create sentiment visualizations
+   python yfinance_fetch_q3.py                      # Fetch stock returns with benchmarks
+   python statistical_analysis_outlier_removed.py   # Run quarterly analysis (outliers removed)
+   python top_5_time_series.py                      # Generate price + sentiment overlays
+   python time_series_analysis_outlier_removed.py   # Run weekly lagged regression (outliers removed)
+   python sentiment_comparison_roberta.py           # VADER vs RoBERTa comparison
    ```
 
 3. **View results (generated after running scripts):**
-   - Quarterly statistics: `data/regression_summary.csv`
-   - Weekly statistics: `data/weekly_lagged_regression_results.csv`
+   - Quarterly statistics: `data/regression_summary_outlier_removed.csv`
+   - Weekly statistics: `data/weekly_lagged_regression_results_outlier_removed.csv`
+   - Sentiment comparison: `data/vader_roberta_comparison.csv`
    - Visualizations: `images/` folder
-   - Merged dataset: `data/merged_sentiment_returns.csv`
+   - Merged datasets: `data/merged_sentiment_returns_outlier_removed.csv`, `data/weekly_panel_top5_outlier_removed.csv`
 
    *Note: Data files are not included in the repository. Run the collection and analysis scripts to generate them.*
 
