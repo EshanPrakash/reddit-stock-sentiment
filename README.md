@@ -433,11 +433,13 @@ reddit-stock-sentiment/
 ## How to Reproduce
 
 1. **Install dependencies:**
-   ```bash
+
+   Requires Python 3.8+
+    ```bash
    pip install -r requirements.txt
    ```
 
-2. **Run scripts in order:**
+3. **Run scripts in order:**
    ```bash
    python collect_pullpush.py                       # Collect Reddit data
    python filter_posts.py                           # Filter for stock mentions
@@ -450,7 +452,7 @@ reddit-stock-sentiment/
    python sentiment_comparison_roberta.py           # VADER vs RoBERTa comparison
    ```
 
-3. **View results (generated after running scripts):**
+4. **View results (generated after running scripts):**
    - Quarterly statistics: `data/regression_summary_outlier_removed.csv`
    - Weekly statistics: `data/weekly_lagged_regression_results_outlier_removed.csv`
    - Sentiment comparison: `data/vader_roberta_comparison.csv`
