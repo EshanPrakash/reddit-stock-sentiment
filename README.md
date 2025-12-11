@@ -433,9 +433,8 @@ reddit-stock-sentiment/
 ## How to Reproduce
 
 1. **Install dependencies:**
-
-   Requires Python 3.8+
     ```bash
+   #Requires Python 3.8+
    pip install -r requirements.txt
    ```
 
