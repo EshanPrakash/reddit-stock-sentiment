@@ -434,7 +434,7 @@ reddit-stock-sentiment/
 
 1. **Install dependencies:**
     ```bash
-   #Requires Python 3.8+
+   # Requires Python 3.8+
    pip install -r requirements.txt
    ```
 
