@@ -190,7 +190,7 @@ Final Dataset:
 
 ### Part 2: Weekly Time Series Analysis
 
-For the top 5 most-discussed stocks (NVDA, TSLA, AAPL, GOOGL, MSFT), we analyzed weekly sentiment and price movements:
+For the top 5 most-discussed stocks (NVDA, TSLA, AAPL, GOOGL, MSFT) measured by total post count, we analyzed weekly sentiment and price movements:
 
 <p align="center">
   <img src="images/figures/time_series/top_5_price_sentiment_overlay.png" alt="Price and Sentiment Overlay" width="100%">
